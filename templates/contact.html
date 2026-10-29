@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Contact & Academic Coordination | PublicSpace360{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, #0b192c, #152942);">
+  <div class="container py-3">
+    <span class="badge bg-info bg-opacity-25 text-info border border-info-subtle px-3 py-1 rounded-pill mb-2">
+      <i class="fa-solid fa-envelope-open-text me-1"></i> Get In Touch
+    </span>
+    <h1 class="fw-bold mb-2">Contact CEP Research Team</h1>
+    <p class="text-white-50 lead mb-0">
+      Reach out with public space mapping queries, academic collaborations, or municipal partnership inquiries.
+    </p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-5">
+    <!-- Left Column: Contact Form -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <h4 class="fw-bold text-dark mb-2"><i class="fa-solid fa-paper-plane text-primary me-2"></i>Send Us a Message</h4>
+        <p class="text-muted small mb-4">We usually respond within 24 hours to academic and citizen communications.</p>
+
+        <form id="contactForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Your Name *</label>
+              <input type="text" name="name" class="form-control rounded-3" placeholder="Priyanka Sharma" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Email Address *</label>
+              <input type="email" name="email" class="form-control rounded-3" placeholder="name@example.com" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Subject *</label>
+              <input type="text" name="subject" class="form-control rounded-3" placeholder="Inquiry regarding public space mapping data..." required>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Message *</label>
+              <textarea name="message" class="form-control rounded-3" rows="5" placeholder="Write your message here..." required></textarea>
+            </div>
+            <div class="col-12">
+              <button type="submit" id="contactSubmitBtn" class="btn btn-hero-primary rounded-pill px-4 py-2 fw-bold">
+                <i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column: Institutional Info & FAQs -->
+    <div class="col-lg-5">
+      <!-- Department Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-building-columns text-success me-2"></i>Academic Department</h5>
+        <p class="text-muted small mb-3">
+          <strong>Department of Computer Science & Engineering</strong><br>
+          Center for Smart Urbanism and Community Engagement<br>
+          Metropolitan Engineering Campus<br>
+          Email: <a href="mailto:contact@publicspace360.org" class="text-decoration-none">contact@publicspace360.org</a><br>
+          Phone: +91 98765 43210
+        </p>
+        <div class="p-3 bg-light rounded-3 small text-muted">
+          <i class="fa-solid fa-clock text-info me-1"></i> Research Hours: Mon – Fri, 09:00 AM – 05:00 PM
+        </div>
+      </div>
+
+      <!-- FAQs Accordion -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-circle-question text-info me-2"></i>Frequently Asked Questions</h5>
+        <div class="accordion accordion-flush" id="faqAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                How is this project used in college CEP evaluation?
+              </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body small text-muted">
+                This project satisfies all Community Engagement Project (CEP) requirements by addressing local civic space utility, crowd-sourcing public feedback, and presenting empirical data through Leaflet and Chart.js.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                Can municipalities access the survey data?
+              </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body small text-muted">
+                Yes! City planning officials can log into the dedicated Admin Dashboard to analyze reports, download CSV spreadsheets, and monitor community maintenance requests.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                Is my survey response anonymous?
+              </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body small text-muted">
+                Yes. Citizens can complete the survey with or without an account. Stored responses are used strictly in aggregate for academic study and municipal insights.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('contactForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('contactSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Sending...';
+
+    const payload = {
+      name: this.name.value.trim(),
+      email: this.email.value.trim(),
+      subject: this.subject.value.trim(),
+      message: this.message.value.trim()
+    };
+
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        showToast(res.message, 'success');
+        this.reset();
+      } else {
+        showToast(res.error || 'Failed to send message.', 'danger');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry';
+    })
+    .catch(() => {
+      showToast('A network error occurred.', 'danger');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry';
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Report a Problem | PublicSpace360 Civic Maintenance{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, #0b192c, #152942);">
+  <div class="container py-3">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <span class="badge bg-warning bg-opacity-25 text-warning border border-warning-subtle px-3 py-1 rounded-pill mb-2">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i> Civic Problem Reporting
+        </span>
+        <h1 class="fw-bold mb-2">Report a Public Space Problem</h1>
+        <p class="text-white-50 lead mb-0">
+          Help maintain our parks, playgrounds, and public promenades. Flag infrastructure damages, cleanliness lapses, or safety concerns.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+        <span class="badge bg-light text-dark p-2 px-3 rounded-pill fw-bold">
+          <i class="fa-solid fa-headset text-success me-1"></i> Municipal Maintenance Response
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-5">
+    <!-- Left Column: Report Submission Form -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+        <h4 class="fw-bold text-dark mb-2">
+          <i class="fa-solid fa-bullhorn text-warning me-2"></i>File an Issue Ticket
+        </h4>
+        <p class="text-muted small mb-4">
+          All tickets are logged in the municipal CEP maintenance registry for civic follow-up.
+        </p>
+
+        <form id="issueReportForm" enctype="multipart/form-data">
+          <!-- Select Public Space -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark">
+              Select Public Space <span class="text-danger">*</span>
+            </label>
+            <select name="space_id" class="form-select rounded-3" required>
+              <option value="" disabled selected>-- Choose Public Space --</option>
+              {% for sp in spaces %}
+                <option value="{{ sp.id }}" {% if (request.args.get('space_id')|int == sp.id) or (preselect_id == sp.id) %}selected{% endif %}>
+                  {{ sp.name }} &bull; {{ sp.area }} ({{ sp.type }})
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Issue Type -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark">
+              Issue Type <span class="text-danger">*</span>
+            </label>
+            <select name="issue_type" class="form-select rounded-3" required>
+              <option value="" disabled selected>-- Select Issue Classification --</option>
+              <option value="Broken Light">Broken Light / Faulty Illumination</option>
+              <option value="Garbage">Garbage / Litter Overflow</option>
+              <option value="Damaged Playground Equipment">Damaged Playground Equipment</option>
+              <option value="No Drinking Water">No Drinking Water / Filter Failure</option>
+              <option value="Damaged Seating">Damaged Seating / Benches</option>
+              <option value="Unsafe Area">Unsafe Area / Security Vulnerability</option>
+              <option value="Poor Cleanliness">Poor Cleanliness & Sanitation</option>
+              <option value="Other">Other Problem</option>
+            </select>
+          </div>
+
+          <!-- Priority -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark">Priority Level</label>
+            <div class="row g-2">
+              <div class="col-3">
+                <input type="radio" class="btn-check" name="priority" id="prio_low" value="Low">
+                <label class="btn btn-outline-secondary w-100 py-2 small" for="prio_low">Low</label>
+              </div>
+              <div class="col-3">
+                <input type="radio" class="btn-check" name="priority" id="prio_med" value="Medium" checked>
+                <label class="btn btn-outline-primary w-100 py-2 small" for="prio_med">Medium</label>
+              </div>
+              <div class="col-3">
+                <input type="radio" class="btn-check" name="priority" id="prio_high" value="High">
+                <label class="btn btn-outline-warning w-100 py-2 small" for="prio_high">High</label>
+              </div>
+              <div class="col-3">
+                <input type="radio" class="btn-check" name="priority" id="prio_crit" value="Critical">
+                <label class="btn btn-outline-danger w-100 py-2 small" for="prio_crit">Critical</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Specific Location within Space -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark">Specific Location or Landmark</label>
+            <input type="text" name="location" class="form-control rounded-3" placeholder="e.g. Near North Gazebo, Beside jogging track mile 1.2, Children sandbox">
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-dark">
+              Problem Description <span class="text-danger">*</span>
+            </label>
+            <textarea name="description" class="form-control rounded-3" rows="4" placeholder="Detail the hazard or maintenance requirement..." required></textarea>
+          </div>
+
+          <!-- Photo Upload -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              <i class="fa-solid fa-camera text-primary me-1"></i> Upload Photo (Optional)
+            </label>
+            <input type="file" name="photo" class="form-control rounded-3" accept="image/*">
+            <div class="form-text">Formats accepted: JPG, PNG, WEBP. Maximum file size: 16MB.</div>
+          </div>
+
+          <button type="submit" id="submitReportBtn" class="btn btn-warning w-100 py-3 rounded-pill fw-bold text-dark shadow">
+            <i class="fa-solid fa-paper-plane me-2"></i> Submit Issue Report
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column: Status Workflow Info & Recent Reports Feed -->
+    <div class="col-lg-5">
+      <!-- Workflow Explanation Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-route text-info me-2"></i>Report Resolution Lifecycle</h5>
+        <div class="d-flex flex-column gap-3">
+          <div class="d-flex gap-3 align-items-center">
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">1. Reported</span>
+            <span class="small text-muted">Ticket logged by citizen with geo-location metadata.</span>
+          </div>
+          <div class="d-flex gap-3 align-items-center">
+            <span class="badge bg-info text-white rounded-pill px-3 py-2">2. Under Review</span>
+            <span class="small text-muted">Field municipal inspector validates issue severity.</span>
+          </div>
+          <div class="d-flex gap-3 align-items-center">
+            <span class="badge bg-primary text-white rounded-pill px-3 py-2">3. In Progress</span>
+            <span class="small text-muted">Maintenance crew dispatched with required spares.</span>
+          </div>
+          <div class="d-flex gap-3 align-items-center">
+            <span class="badge bg-success text-white rounded-pill px-3 py-2">4. Resolved</span>
+            <span class="small text-muted">Repair executed, verified, and ticket archived.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Public Reports Feed -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="fa-solid fa-list-check text-primary me-2"></i>Recent Community Tickets
+        </h5>
+
+        {% if recent_issues %}
+          <div class="d-flex flex-column gap-3">
+            {% for iss in recent_issues %}
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <h6 class="fw-bold text-dark m-0">{{ iss.issue_type }}</h6>
+                  <span class="badge {% if iss.status == 'Resolved' %}bg-success{% elif iss.status == 'In Progress' %}bg-primary{% elif iss.status == 'Under Review' %}bg-info{% else %}bg-warning text-dark{% endif %}">
+                    {{ iss.status }}
+                  </span>
+                </div>
+                <div class="small text-muted mb-2">
+                  <i class="fa-solid fa-tree text-success me-1"></i>{{ iss.space_name }}
+                  {% if iss.location %} • {{ iss.location }}{% endif %}
+                </div>
+                <p class="small text-secondary mb-2">{{ iss.description }}</p>
+                <div class="d-flex justify-content-between align-items-center small text-muted" style="font-size: 0.72rem;">
+                  <span>Priority: <b>{{ iss.priority }}</b></span>
+                  <span>{{ iss.created_at }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted small text-center py-4">No community issues currently active.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const reportForm = document.getElementById('issueReportForm');
+    const submitBtn = document.getElementById('submitReportBtn');
+
+    if (reportForm) {
+      reportForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting Issue...';
+
+        const formData = new FormData(reportForm);
+
+        fetch('/api/reports', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            showToast(res.message, 'success');
+            reportForm.reset();
+            setTimeout(() => location.reload(), 1500);
+          } else {
+            showToast(res.error || 'Failed to submit report.', 'danger');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Submit Issue Report';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          showToast('An error occurred submitting the report.', 'danger');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Submit Issue Report';
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

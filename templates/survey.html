@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Public Space Usage Survey | PublicSpace360 CEP{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, #0b192c, #152942);">
+  <div class="container py-3">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <span class="badge bg-success bg-opacity-25 text-success border border-success-subtle px-3 py-1 rounded-pill mb-2">
+          <i class="fa-solid fa-clipboard-question me-1"></i> Academic Citizen Research
+        </span>
+        <h1 class="fw-bold mb-2">Public Space Usage Survey</h1>
+        <p class="text-white-50 lead mb-0">
+          Your feedback powers our Community Engagement Project (CEP) data model, evaluating civic accessibility, safety perceptions, and facility maintenance.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+        <a href="{{ url_for('results_page') }}" class="btn btn-outline-info rounded-pill px-4 py-2 fw-semibold">
+          <i class="fa-solid fa-chart-pie me-1"></i> View Live Analytics
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Survey Form Container -->
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+      
+      <!-- Survey Card -->
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+        
+        <div class="d-flex align-items-center gap-3 pb-4 mb-4 border-bottom">
+          <div class="p-3 rounded-3 bg-primary bg-opacity-10 text-primary fs-3">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold text-dark m-0">Community Engagement Questionnaire</h4>
+            <p class="text-muted small m-0">Estimated completion time: 2 minutes • Responses are stored securely for academic research.</p>
+          </div>
+        </div>
+
+        <form id="cepSurveyForm">
+          <!-- Question 1: Public Space -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              1. Which public space do you usually visit? <span class="text-danger">*</span>
+            </label>
+            <select name="space_id" class="form-select form-select-lg rounded-3" required>
+              <option value="" disabled {% if not preselect_id %}selected{% endif %}>-- Select a Public Space --</option>
+              {% for sp in spaces %}
+                <option value="{{ sp.id }}" {% if preselect_id == sp.id %}selected{% endif %}>
+                  {{ sp.name }} &bull; {{ sp.area }} ({{ sp.type }})
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Question 2: Frequency -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              2. How often do you visit this public space? <span class="text-danger">*</span>
+            </label>
+            <div class="row g-2">
+              {% for freq in ['Daily', 'Several times a week', 'Weekly', 'Occasionally'] %}
+                <div class="col-md-6 col-12">
+                  <input type="radio" class="btn-check" name="visit_frequency" id="freq_{{ loop.index }}" value="{{ freq }}" {% if loop.first %}checked{% endif %} required>
+                  <label class="btn btn-outline-secondary w-100 text-start py-2 px-3 rounded-3" for="freq_{{ loop.index }}">
+                    <i class="fa-regular fa-circle-dot me-2 text-primary"></i> {{ freq }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Question 3: Purpose -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              3. What is the main purpose of your visit? <span class="text-danger">*</span>
+            </label>
+            <div class="row g-2">
+              {% for purp in ['Walking', 'Exercise', 'Playing', 'Relaxation', 'Socializing', 'Children activities', 'Other'] %}
+                <div class="col-md-4 col-6">
+                  <input type="radio" class="btn-check" name="purpose" id="purp_{{ loop.index }}" value="{{ purp }}" {% if loop.first %}checked{% endif %} required>
+                  <label class="btn btn-outline-secondary w-100 text-start py-2 px-3 rounded-3 small" for="purp_{{ loop.index }}">
+                    {{ purp }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Question 4: Age Group -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              4. Which age group are you? <span class="text-danger">*</span>
+            </label>
+            <div class="row g-2">
+              {% for age in ['Below 18', '18–25', '26–40', '41–60', '60+'] %}
+                <div class="col">
+                  <input type="radio" class="btn-check" name="age_group" id="age_{{ loop.index }}" value="{{ age }}" {% if age == '18–25' %}checked{% endif %} required>
+                  <label class="btn btn-outline-secondary w-100 text-center py-2 px-2 rounded-3 small fw-semibold" for="age_{{ loop.index }}">
+                    {{ age }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Rating Matrix (Questions 5 to 10) -->
+          <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>Rate Public Space Infrastructure (1 = Poor, 5 = Excellent)</h5>
+
+          <!-- Q5: Safety -->
+          <div class="mb-4 p-3 bg-light rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold text-dark m-0">5. How safe do you feel in and around the space?</label>
+              <span class="badge bg-primary rounded-pill rating-val-badge" id="val_safety">4 / 5</span>
+            </div>
+            <div class="rating-scale-group" data-target="safety_rating">
+              {% for i in range(1, 6) %}
+                <div class="scale-btn {% if i == 4 %}selected{% endif %}" data-value="{{ i }}">{{ i }}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="safety_rating" id="safety_rating" value="4">
+          </div>
+
+          <!-- Q6: Cleanliness -->
+          <div class="mb-4 p-3 bg-light rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold text-dark m-0">6. Rate cleanliness and waste management.</label>
+              <span class="badge bg-primary rounded-pill rating-val-badge" id="val_cleanliness">4 / 5</span>
+            </div>
+            <div class="rating-scale-group" data-target="cleanliness_rating">
+              {% for i in range(1, 6) %}
+                <div class="scale-btn {% if i == 4 %}selected{% endif %}" data-value="{{ i }}">{{ i }}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="cleanliness_rating" id="cleanliness_rating" value="4">
+          </div>
+
+          <!-- Q7: Lighting -->
+          <div class="mb-4 p-3 bg-light rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold text-dark m-0">7. Rate night-time lighting and pathway illumination.</label>
+              <span class="badge bg-primary rounded-pill rating-val-badge" id="val_lighting">4 / 5</span>
+            </div>
+            <div class="rating-scale-group" data-target="lighting_rating">
+              {% for i in range(1, 6) %}
+                <div class="scale-btn {% if i == 4 %}selected{% endif %}" data-value="{{ i }}">{{ i }}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="lighting_rating" id="lighting_rating" value="4">
+          </div>
+
+          <!-- Q8: Seating -->
+          <div class="mb-4 p-3 bg-light rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold text-dark m-0">8. Rate seating facilities and shaded benches.</label>
+              <span class="badge bg-primary rounded-pill rating-val-badge" id="val_seating">4 / 5</span>
+            </div>
+            <div class="rating-scale-group" data-target="seating_rating">
+              {% for i in range(1, 6) %}
+                <div class="scale-btn {% if i == 4 %}selected{% endif %}" data-value="{{ i }}">{{ i }}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="seating_rating" id="seating_rating" value="4">
+          </div>
+
+          <!-- Q9: Water -->
+          <div class="mb-4 p-3 bg-light rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold text-dark m-0">9. Rate drinking water and sanitation facilities.</label>
+              <span class="badge bg-primary rounded-pill rating-val-badge" id="val_water">3 / 5</span>
+            </div>
+            <div class="rating-scale-group" data-target="water_rating">
+              {% for i in range(1, 6) %}
+                <div class="scale-btn {% if i == 3 %}selected{% endif %}" data-value="{{ i }}">{{ i }}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="water_rating" id="water_rating" value="3">
+          </div>
+
+          <!-- Q10: Accessibility -->
+          <div class="mb-4 p-3 bg-light rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold text-dark m-0">10. Rate universal accessibility (ramps, wide paths, senior friendly).</label>
+              <span class="badge bg-primary rounded-pill rating-val-badge" id="val_accessibility">5 / 5</span>
+            </div>
+            <div class="rating-scale-group" data-target="accessibility_rating">
+              {% for i in range(1, 6) %}
+                <div class="scale-btn {% if i == 5 %}selected{% endif %}" data-value="{{ i }}">{{ i }}</div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="accessibility_rating" id="accessibility_rating" value="5">
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Question 11: Which facility needs improvement? -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              11. Which facility needs the most urgent improvement?
+            </label>
+            <select name="improvement" class="form-select rounded-3">
+              <option value="Drinking Water">Drinking Water Dispensers & Hygiene</option>
+              <option value="Lighting">Pathway & Boundary Lighting</option>
+              <option value="Toilets">Clean Public Restrooms</option>
+              <option value="Seating">More Shaded Benches</option>
+              <option value="Open Gym Equipment">Open Gym & Calisthenics Equipment</option>
+              <option value="Playground Equipment">Playground Swings & Safety Rubber Flooring</option>
+              <option value="Walking Track">Rubberized / Paved Jogging Track</option>
+              <option value="Accessibility">Wheelchair Ramps & Tactile Paving</option>
+              <option value="Cleanliness & Waste">Dustbins & Waste Segregation</option>
+              <option value="Security">CCTV & Municipal Security Guarding</option>
+            </select>
+          </div>
+
+          <!-- Question 12: Suggestions -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark">
+              12. What improvements would you suggest to make this space better for everyone?
+            </label>
+            <textarea name="suggestion" class="form-control rounded-3" rows="3" placeholder="Share specific recommendations (e.g. botanical labels, night lighting, senior-citizen clubs, emergency call boxes)..."></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button type="submit" id="submitSurveyBtn" class="btn btn-hero-primary w-100 py-3 fs-5 rounded-pill shadow">
+              <i class="fa-solid fa-paper-plane me-2"></i> Submit Survey Response
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/survey.js') }}"></script>
+{% endblock %}

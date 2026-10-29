@@ -1,0 +1,187 @@
+/* ==========================================================================
+   PublicSpace360 - Smart City Operations Administration Stylesheet
+   ========================================================================== */
+
+:root {
+  --admin-navy-dark: #031b2b;
+  --admin-navy: #06283d;
+  --admin-navy-light: #0b3954;
+  --admin-teal: #21f58b;
+  --admin-cyan: #1687ff;
+  --admin-purple: #7b2cff;
+  --admin-orange: #ff7a00;
+  --admin-pink: #ff2fa4;
+}
+
+.admin-panel-wrapper {
+  display: flex;
+  min-height: calc(100vh - 74px);
+  background: #f1f5f9;
+}
+
+.admin-sidebar {
+  width: 270px;
+  background: var(--admin-navy);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.admin-nav-tabs .nav-link {
+  color: #94a3b8 !important;
+  padding: 0.85rem 1.25rem !important;
+  border-radius: 10px;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: none;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.admin-nav-tabs .nav-link:hover {
+  background: rgba(33, 245, 139, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.admin-nav-tabs .nav-link.active {
+  background: rgba(33, 245, 139, 0.15) !important;
+  color: #21f58b !important;
+  border-left: 3px solid #21f58b;
+}
+
+.admin-tab-content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Stat Cards */
+.admin-metric-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 15px rgba(6, 40, 61, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.admin-metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(6, 40, 61, 0.08);
+}
+
+.admin-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+/* Table Controls */
+.admin-table-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 20px rgba(6, 40, 61, 0.04);
+  overflow: hidden;
+}
+
+.table-responsive {
+  max-height: 540px;
+  overflow-y: auto;
+}
+
+.table-admin {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.table-admin thead th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.table-admin tbody td {
+  padding: 0.95rem 1.25rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-admin tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Status & Priority Badges */
+.badge-priority-low {
+  background: rgba(22, 135, 255, 0.12);
+  color: #1687ff;
+  border: 1px solid rgba(22, 135, 255, 0.25);
+  font-weight: 600;
+}
+
+.badge-priority-medium {
+  background: rgba(255, 122, 0, 0.12);
+  color: #ea580c;
+  border: 1px solid rgba(255, 122, 0, 0.25);
+  font-weight: 600;
+}
+
+.badge-priority-high {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-weight: 700;
+}
+
+.badge-priority-critical {
+  background: #ef4444;
+  color: #ffffff;
+  font-weight: 800;
+  animation: pulse-critical 1.8s infinite;
+}
+
+@keyframes pulse-critical {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.badge-status-reported {
+  background: rgba(234, 179, 8, 0.15);
+  color: #b45309;
+}
+
+.badge-status-under-review {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+}
+
+.badge-status-in-progress {
+  background: rgba(147, 51, 234, 0.15);
+  color: #7e22ce;
+}
+
+.badge-status-resolved {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+/* Modals */
+.modal-admin-header {
+  background: var(--admin-navy);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Survey Analytics & Results | PublicSpace360 CEP{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, #0b192c, #152942);">
+  <div class="container py-3">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <span class="badge bg-info bg-opacity-25 text-info border border-info-subtle px-3 py-1 rounded-pill mb-2">
+          <i class="fa-solid fa-chart-pie me-1"></i> Empirical CEP Telemetry
+        </span>
+        <h1 class="fw-bold mb-2">Public Space Usage & Survey Analytics</h1>
+        <p class="text-white-50 lead mb-0">
+          Real-time dynamic data visualizations demonstrating how citizens interact with public urban spaces, their safety perceptions, and community development priorities.
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+        <a href="{{ url_for('survey_page') }}" class="btn btn-hero-primary px-4 py-2">
+          <i class="fa-solid fa-plus me-1"></i> Add Your Response
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic Summary Metrics Cards -->
+<div class="container py-5">
+  <div class="row g-4 mb-5">
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-emerald">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Total Responses</div>
+          <div class="fs-3 fw-bold text-dark" id="analyticsTotalResponses">--</div>
+          <div class="small text-success"><i class="fa-solid fa-arrow-trend-up me-1"></i>Live Telemetry</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-cyan">
+          <i class="fa-solid fa-ranking-star"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Most Visited Space</div>
+          <div class="fs-6 fw-bold text-dark text-truncate" style="max-width: 160px;" id="analyticsTopSpace">Loading...</div>
+          <div class="small text-info">Highest daily footfall</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-purple">
+          <i class="fa-solid fa-person-running"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Top Activity</div>
+          <div class="fs-4 fw-bold text-dark" id="analyticsTopActivity">Walking & Fitness</div>
+          <div class="small text-muted">Primary civic motivation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-orange">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Avg Safety Rating</div>
+          <div class="fs-3 fw-bold text-warning" id="analyticsAvgSafety">4.4 / 5.0</div>
+          <div class="small text-muted">Citizen perception</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1: Usage by Type (Pie) & Main Activities (Bar) -->
+  <div class="row g-4 mb-4">
+    <!-- Pie Chart: Public Space Usage -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0">
+            <i class="fa-solid fa-chart-pie text-success me-2"></i>Public Space Usage
+          </h5>
+          <span class="badge bg-light text-muted border small">Percentage</span>
+        </div>
+        <p class="text-muted small">Distribution of respondents across Parks, Playgrounds, Promenades, Gardens, and Open Gyms.</p>
+        <div class="position-relative" style="height: 280px;">
+          <canvas id="usagePieChart"></canvas>
+        </div>
+        <div id="usagePercentageLegend" class="d-flex flex-wrap justify-content-center gap-2 mt-3 small">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart: Main Activities -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0">
+            <i class="fa-solid fa-chart-simple text-primary me-2"></i>Main Purpose of Visit
+          </h5>
+          <span class="badge bg-light text-muted border small">Respondent Count</span>
+        </div>
+        <p class="text-muted small">Comparison of visitor objectives (Walking, Exercise, Children activities, Relaxation, etc.).</p>
+        <div class="position-relative" style="height: 310px;">
+          <canvas id="activitiesBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2: Age Groups (Doughnut) & Facility Ratings (Bar) -->
+  <div class="row g-4 mb-4">
+    <!-- Doughnut Chart: Age Groups -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0">
+            <i class="fa-solid fa-chart-donut text-purple me-2" style="color: #8b5cf6;"></i>Age Groups Demographics
+          </h5>
+          <span class="badge bg-light text-muted border small">Cohorts</span>
+        </div>
+        <p class="text-muted small">User demographic breakdown participating in public space recreation.</p>
+        <div class="position-relative" style="height: 270px;">
+          <canvas id="ageDoughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart: Facility Ratings -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0">
+            <i class="fa-solid fa-star-half-stroke text-warning me-2"></i>Infrastructure & Facility Ratings (1-5 Scale)
+          </h5>
+          <span class="badge bg-light text-muted border small">Average Score</span>
+        </div>
+        <p class="text-muted small">Safety, Cleanliness, Lighting, Seating, Drinking Water, and Universal Accessibility averages.</p>
+        <div class="position-relative" style="height: 270px;">
+          <canvas id="facilityRatingsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 3: Priority Improvements & Visit Frequency -->
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <h5 class="fw-bold text-dark mb-2"><i class="fa-solid fa-wrench text-danger me-2"></i>Most Requested Improvements</h5>
+        <p class="text-muted small mb-3">Priority infrastructure interventions requested by citizens.</p>
+        <div class="position-relative" style="height: 240px;">
+          <canvas id="improvementsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <h5 class="fw-bold text-dark mb-2"><i class="fa-solid fa-calendar-check text-cyan me-2" style="color: #06b6d4;"></i>Visitation Frequency</h5>
+        <p class="text-muted small mb-3">How often citizens visit their neighborhood parks and recreational grounds.</p>
+        <div class="position-relative" style="height: 240px;">
+          <canvas id="frequencyChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/results.js') }}"></script>
+{% endblock %}

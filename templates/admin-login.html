@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}City Administration Portal | PublicSpace360{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper" style="background: radial-gradient(circle at top right, #1e3e62, #0b192c);">
+  <div class="auth-card" style="border-top: 4px solid #f59e0b;">
+    <div class="auth-header">
+      <div class="brand-icon mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.6rem; background: linear-gradient(135deg, #f59e0b, #ef4444);">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2>Administration Portal</h2>
+      <p class="text-white-50">Smart City Operations & Municipal Urban Planning</p>
+    </div>
+
+    <div id="adminAlert" class="alert alert-danger d-none rounded-3 py-2 small" role="alert"></div>
+
+    <form id="adminLoginForm">
+      <div class="mb-3">
+        <label class="form-label-dark">Administrator Email</label>
+        <input type="email" name="email" class="form-control form-control-dark" placeholder="admin@publicspace360.org" value="admin@publicspace360.org" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label-dark">Secret Password</label>
+        <input type="password" name="password" class="form-control form-control-dark" placeholder="••••••••" value="admin123" required>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-4 text-white-50 small">
+        <span class="badge bg-warning bg-opacity-25 text-warning px-2 py-1">Role: SuperAdmin</span>
+        <span>256-bit Encrypted</span>
+      </div>
+
+      <button type="submit" id="adminSubmitBtn" class="btn btn-warning w-100 py-3 rounded-pill fw-bold text-dark shadow">
+        <i class="fa-solid fa-lock-open me-2"></i> Access Admin Dashboard
+      </button>
+
+      <!-- Demo Admin Credentials Pill -->
+      <div class="mt-4 p-2 text-center rounded-3" style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.3);">
+        <span class="small text-warning">Pre-configured Admin: <b>admin@publicspace360.org</b> / <b>admin123</b></span>
+      </div>
+
+      <div class="text-center mt-3 pt-3 border-top border-secondary">
+        <a href="{{ url_for('login_page') }}" class="text-info text-decoration-none small">
+          &larr; Return to Citizen Login
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('adminLoginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const alertBox = document.getElementById('adminAlert');
+    const submitBtn = document.getElementById('adminSubmitBtn');
+    alertBox.classList.add('d-none');
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Verifying Clearance...';
+
+    const payload = {
+      email: this.email.value.trim(),
+      password: this.password.value
+    };
+
+    fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          showToast(res.message, 'success');
+          window.location.href = res.redirect || '/admin/dashboard';
+        } else {
+          alertBox.textContent = res.error || 'Invalid administrator credentials.';
+          alertBox.classList.remove('d-none');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-lock-open me-2"></i> Access Admin Dashboard';
+        }
+      })
+      .catch(err => {
+        alertBox.textContent = 'A network error occurred. Please try again.';
+        alertBox.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-lock-open me-2"></i> Access Admin Dashboard';
+      });
+  });
+</script>
+{% endblock %}

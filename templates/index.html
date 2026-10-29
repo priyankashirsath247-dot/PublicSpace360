@@ -1,0 +1,2720 @@
+{% extends "base.html" %}
+
+{% block title %}
+PublicSpace360 - Mapping Public Spaces
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   PUBLICSPACE360 HOME
+========================================================= */
+
+:root{
+    --green:#10d98b;
+    --green-dark:#063d32;
+    --cyan:#13c9e8;
+    --dark:#071c2b;
+    --dark-2:#102536;
+    --text:#f8fafc;
+    --muted:#cbd5e1;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero-section{
+
+    position:relative;
+
+    min-height:630px;
+
+    padding:45px 0 70px;
+
+    overflow:hidden;
+
+    /* CLEAR BACKGROUND */
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(35, 147, 141, 0.55) 0%,
+            rgba(3,35,31,.30) 45%,
+            rgba(3,35,31,.16) 75%,
+            rgba(3,25,24,.35) 100%
+        ),
+        url("https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=2200&q=95");
+
+    /* SHOW MORE OF IMAGE / LESS ZOOM */
+    background-size:100% auto;
+
+    background-repeat:no-repeat;
+
+    background-position:center top;
+
+    background-color:#0b2926;
+}
+
+
+/* soft green glow */
+
+.hero-section::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        radial-gradient(
+            circle at 80% 45%,
+            rgba(16,217,139,.10),
+            transparent 35%
+        );
+
+    pointer-events:none;
+}
+
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.hero-section .container{
+    position:relative;
+    z-index:10;
+}
+
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+.hero-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    padding:8px 15px;
+
+    margin-bottom:18px;
+
+    border:1px solid rgba(16,217,139,.45);
+
+    border-radius:50px;
+
+    background:rgba(0,35,30,.45);
+
+    color:#7affc8;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    backdrop-filter:blur(8px);
+}
+
+
+/* =========================================================
+   HERO TITLE
+========================================================= */
+
+.hero-title{
+
+    color:white;
+
+    font-size:clamp(40px,4.7vw,63px);
+
+    line-height:1.05;
+
+    font-weight:800;
+
+    letter-spacing:-2px;
+
+    margin-bottom:20px;
+
+    text-shadow:
+        0 4px 25px rgba(0,0,0,.35);
+}
+
+
+.hero-title span{
+
+    background:
+        linear-gradient(
+            90deg,
+            #16e39a,
+            #18c9e8
+        );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.hero-desc{
+
+    max-width:680px;
+
+    color:#f0fdf9;
+
+    font-size:16px;
+
+    line-height:1.7;
+
+    margin-bottom:25px;
+
+    text-shadow:
+        0 2px 12px rgba(0,0,0,.35);
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.hero-btns{
+
+    display:flex;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+}
+
+
+.btn-hero-primary{
+
+    background:
+        linear-gradient(
+            135deg,
+            #10d98b,
+            #08bfa2
+        );
+
+    border:none;
+
+    color:#031b18 !important;
+
+    font-weight:800;
+
+    padding:12px 21px;
+
+    border-radius:50px;
+
+    box-shadow:
+        0 10px 25px rgba(16,217,139,.25);
+
+    transition:.25s ease;
+}
+
+
+.btn-hero-primary:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+        0 16px 35px rgba(16,217,139,.38);
+}
+
+
+.btn-hero-secondary{
+
+    color:white !important;
+
+    background:rgba(5,28,38,.58);
+
+    border:1px solid rgba(255,255,255,.30);
+
+    padding:12px 20px;
+
+    border-radius:50px;
+
+    font-weight:700;
+
+    backdrop-filter:blur(10px);
+
+    transition:.25s ease;
+}
+
+
+.btn-hero-secondary:hover{
+
+    background:rgba(16,217,139,.15);
+
+    border-color:#10d98b;
+
+    transform:translateY(-3px);
+}
+
+
+/* =========================================================
+   MAP AREA
+========================================================= */
+
+.map-wrapper{
+
+    position:relative;
+
+    width:100%;
+
+    max-width:430px;
+
+    margin:auto;
+
+    padding:25px 0 0;
+}
+
+
+/* =========================================================
+   MAP CARD
+========================================================= */
+
+.hero-map-card{
+
+    width:100%;
+
+    max-width:410px;
+
+    margin:auto;
+
+    padding:12px;
+
+    border-radius:22px;
+
+    background:
+        rgba(255,255,255,.96);
+
+    /* BLACK BORDER REMOVED */
+
+    border:none;
+
+    box-shadow:
+        0 22px 50px rgba(0,0,0,.28);
+
+    position:relative;
+
+    z-index:5;
+
+    transition:.35s ease;
+}
+
+
+.hero-map-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:
+        0 30px 65px rgba(0,0,0,.35);
+}
+
+
+/* =========================================================
+   MAP HEADER
+========================================================= */
+
+.map-card-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:8px;
+
+    padding:4px 4px 10px;
+
+    margin-bottom:8px;
+
+    border-bottom:1px solid #e5e7eb;
+}
+
+
+.live-map-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    background:#ecfdf5;
+
+    color:#059669;
+
+    border:1px solid #bbf7d0;
+
+    padding:5px 9px;
+
+    border-radius:50px;
+
+    font-size:11px;
+
+    font-weight:800;
+}
+
+
+.live-dot{
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
+    background:#10b981;
+
+    box-shadow:
+        0 0 0 3px rgba(16,185,129,.15),
+        0 0 10px #10b981;
+}
+
+
+/* =========================================================
+   SMALL CLEAR LIVE MAP
+========================================================= */
+
+#hero-mini-map{
+
+    height:190px !important;
+
+    width:100%;
+
+    border-radius:14px;
+
+    overflow:hidden;
+
+    /* REMOVE BLACK BORDER */
+
+    border:none !important;
+
+    outline:none !important;
+
+    box-shadow:
+        0 7px 20px rgba(15,23,42,.12);
+
+    background:#e8f5f0;
+}
+
+
+/* remove leaflet border */
+
+#hero-mini-map .leaflet-container{
+
+    border:none !important;
+
+    outline:none !important;
+}
+
+
+/* clear map attribution */
+
+#hero-mini-map .leaflet-control-attribution{
+
+    font-size:7px;
+
+    background:rgba(255,255,255,.80);
+}
+
+
+/* zoom buttons */
+
+#hero-mini-map .leaflet-control-zoom{
+
+    border:none !important;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.15);
+}
+
+
+#hero-mini-map .leaflet-control-zoom a{
+
+    width:27px;
+
+    height:27px;
+
+    line-height:27px;
+
+    border:none !important;
+
+    color:#064e3b;
+
+    font-weight:bold;
+}
+
+
+/* =========================================================
+   LEGEND
+========================================================= */
+
+.hero-marker-legend{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    gap:5px;
+
+    margin-top:9px;
+}
+
+
+.legend-pill{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:5px;
+
+    padding:5px 8px;
+
+    border-radius:50px;
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    color:#475569;
+
+    font-size:9px;
+
+    font-weight:700;
+
+    transition:.2s ease;
+}
+
+
+.legend-pill:hover{
+
+    transform:translateY(-2px);
+
+    border-color:#10b981;
+
+    background:#ecfdf5;
+}
+
+
+.marker-dot{
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+}
+
+
+.dot-green{
+    background:#10b981;
+}
+
+.dot-orange{
+    background:#f97316;
+}
+
+.dot-purple{
+    background:#8b5cf6;
+}
+
+.dot-blue{
+    background:#3b82f6;
+}
+
+.dot-cyan{
+    background:#06b6d4;
+}
+
+
+/* =========================================================
+   GREEN PARK IMAGE
+========================================================= */
+
+.featured-space-preview{
+
+    position:absolute;
+
+    top:-15px;
+
+    left:-45px;
+
+    width:190px;
+
+    height:125px;
+
+    padding:6px;
+
+    border-radius:19px;
+
+    background:white;
+
+    box-shadow:
+        0 16px 38px rgba(0,0,0,.30);
+
+    z-index:15;
+
+    cursor:pointer;
+
+    transition:
+        transform .35s cubic-bezier(.2,.8,.2,1),
+        box-shadow .35s ease;
+}
+
+
+/* CARD MOVE ON CURSOR */
+
+.featured-space-preview:hover{
+
+    transform:
+        translateY(-10px)
+        rotate(-1deg)
+        scale(1.03);
+
+    box-shadow:
+        0 25px 50px rgba(0,0,0,.40);
+}
+
+
+/* PARK IMAGE */
+
+.featured-space-preview img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:14px;
+
+    display:block;
+
+    transition:
+        transform .45s ease,
+        filter .35s ease;
+}
+
+
+/* IMAGE ZOOM ON HOVER */
+
+.featured-space-preview:hover img{
+
+    transform:scale(1.08);
+
+    filter:
+        brightness(1.06)
+        saturate(1.12);
+}
+
+
+/* =========================================================
+   ACTIVE TAG
+========================================================= */
+
+.active-tag{
+
+    position:absolute;
+
+    top:12px;
+
+    right:12px;
+
+    background:
+        rgba(10,35,25,.88);
+
+    color:white;
+
+    padding:4px 8px;
+
+    border-radius:50px;
+
+    font-size:9px;
+
+    font-weight:800;
+
+    backdrop-filter:blur(6px);
+
+    z-index:2;
+}
+
+
+/* =========================================================
+   PARK LABEL
+========================================================= */
+
+.featured-label{
+
+    position:absolute;
+
+    left:8px;
+
+    bottom:-42px;
+
+    width:174px;
+
+    background:white;
+
+    padding:7px 10px;
+
+    border-radius:
+        0 0 13px 13px;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.18);
+
+    transition:.35s ease;
+}
+
+
+.featured-space-preview:hover .featured-label{
+
+    transform:translateY(3px);
+}
+
+
+.featured-label strong{
+
+    display:block;
+
+    color:#0f172a;
+
+    font-size:13px;
+
+    font-weight:800;
+}
+
+
+.featured-label span{
+
+    color:#64748b;
+
+    font-size:10px;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-strip{
+
+    position:relative;
+
+    margin-top:-30px;
+
+    z-index:20;
+}
+
+
+.stat-glass-card{
+
+    height:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:16px;
+
+    background:rgba(255,255,255,.97);
+
+    border-radius:17px;
+
+    border:1px solid #e2e8f0;
+
+    box-shadow:
+        0 10px 28px rgba(15,23,42,.10);
+
+    transition:.25s ease;
+}
+
+
+.stat-glass-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:
+        0 17px 38px rgba(15,23,42,.15);
+}
+
+
+.stat-icon-wrapper{
+
+    width:43px;
+
+    height:43px;
+
+    min-width:43px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:13px;
+
+    font-size:17px;
+}
+
+
+.icon-emerald{
+
+    background:#dcfce7;
+
+    color:#059669;
+}
+
+
+.icon-cyan{
+
+    background:#cffafe;
+
+    color:#0891b2;
+}
+
+
+.icon-orange{
+
+    background:#ffedd5;
+
+    color:#ea580c;
+}
+
+
+.icon-purple{
+
+    background:#ede9fe;
+
+    color:#7c3aed;
+}
+
+
+.stat-number{
+
+    font-size:21px;
+
+    font-weight:800;
+
+    color:#0f172a;
+}
+
+
+.stat-label{
+
+    font-size:11px;
+
+    color:#64748b;
+
+    font-weight:600;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.section-header{
+
+    text-align:center;
+
+    max-width:760px;
+
+    margin:auto auto 35px;
+}
+
+
+.section-pill{
+
+    display:inline-block;
+
+    padding:7px 14px;
+
+    border-radius:50px;
+
+    background:#ecfdf5;
+
+    color:#059669;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    margin-bottom:11px;
+}
+
+
+.section-title{
+
+    color:#0f172a;
+
+    font-size:clamp(28px,4vw,41px);
+
+    font-weight:800;
+
+    margin-bottom:9px;
+}
+
+
+.section-subtitle{
+
+    color:#64748b;
+
+    line-height:1.7;
+
+    margin:0;
+}
+
+
+/* =========================================================
+   FEATURE CARDS
+========================================================= */
+
+.feature-card{
+
+    height:100%;
+
+    padding:25px;
+
+    background:white;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:19px;
+
+    box-shadow:
+        0 7px 23px rgba(15,23,42,.06);
+
+    transition:.3s ease;
+}
+
+
+.feature-card:hover{
+
+    transform:translateY(-7px);
+
+    border-color:rgba(16,185,129,.35);
+
+    box-shadow:
+        0 18px 42px rgba(15,23,42,.11);
+}
+
+
+.feature-icon-box{
+
+    width:50px;
+
+    height:50px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    margin-bottom:17px;
+
+    border-radius:14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dcfce7,
+            #cffafe
+        );
+
+    color:#059669;
+
+    font-size:20px;
+}
+
+
+.feature-card h4{
+
+    color:#0f172a;
+
+    font-size:19px;
+
+    font-weight:800;
+}
+
+
+.feature-card p{
+
+    color:#64748b;
+
+    font-size:14px;
+
+    line-height:1.7;
+
+    min-height:95px;
+}
+
+
+/* =========================================================
+   PUBLIC SPACE CARDS
+========================================================= */
+
+.space-card{
+
+    height:100%;
+
+    overflow:hidden;
+
+    background:white;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:20px;
+
+    box-shadow:
+        0 8px 25px rgba(15,23,42,.06);
+
+    transition:.3s ease;
+}
+
+
+.space-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:
+        0 18px 40px rgba(15,23,42,.12);
+}
+
+
+.space-card-img-wrap{
+
+    height:220px;
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+
+.space-card-img-wrap img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    transition:.4s ease;
+}
+
+
+.space-card:hover img{
+
+    transform:scale(1.06);
+}
+
+
+.space-badge{
+
+    position:absolute;
+
+    top:14px;
+
+    left:14px;
+
+    padding:7px 11px;
+
+    border-radius:50px;
+
+    color:white;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    backdrop-filter:blur(8px);
+}
+
+
+.badge-park{
+    background:rgba(5,150,105,.92);
+}
+
+.badge-promenade{
+    background:rgba(124,58,237,.92);
+}
+
+.badge-playground{
+    background:rgba(234,88,12,.92);
+}
+
+.badge-garden{
+    background:rgba(219,39,119,.92);
+}
+
+.badge-gym{
+    background:rgba(8,145,178,.92);
+}
+
+
+.space-rating-chip{
+
+    position:absolute;
+
+    right:14px;
+
+    top:14px;
+
+    padding:6px 9px;
+
+    border-radius:50px;
+
+    background:rgba(255,255,255,.94);
+
+    color:#f59e0b;
+
+    font-size:11px;
+
+    font-weight:800;
+}
+
+
+.space-card-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    padding:20px;
+
+    min-height:230px;
+}
+
+
+.space-title{
+
+    color:#0f172a;
+
+    font-size:19px;
+
+    font-weight:800;
+
+    text-decoration:none;
+
+    margin-bottom:7px;
+}
+
+
+.space-title:hover{
+
+    color:#059669;
+}
+
+
+.space-location{
+
+    display:flex;
+
+    gap:7px;
+
+    color:#64748b;
+
+    font-size:12px;
+
+    margin-bottom:13px;
+}
+
+
+.space-facilities-pills{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:6px;
+}
+
+
+.facility-pill{
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:50px;
+
+    padding:5px 8px;
+
+    color:#475569;
+
+    font-size:10px;
+}
+
+
+/* =========================================================
+   CTA
+========================================================= */
+
+.cta-banner{
+
+    position:relative;
+
+    overflow:hidden;
+
+    padding:52px 25px;
+
+    border-radius:27px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #063d32,
+            #092b38
+        );
+
+    color:white;
+
+    box-shadow:
+        0 20px 50px rgba(6,61,50,.20);
+}
+
+
+.cta-banner::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:300px;
+
+    height:300px;
+
+    border-radius:50%;
+
+    background:rgba(16,217,139,.10);
+
+    right:-80px;
+
+    top:-120px;
+}
+
+
+.cta-banner h2{
+
+    position:relative;
+
+    font-weight:800;
+
+    font-size:34px;
+}
+
+
+.cta-banner p{
+
+    position:relative;
+
+    max-width:700px;
+
+    margin:12px auto 25px;
+
+    color:#cbd5e1;
+
+    line-height:1.7;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1199px){
+
+    .hero-title{
+        font-size:48px;
+    }
+
+    .featured-space-preview{
+        left:-20px;
+    }
+
+}
+
+
+@media(max-width:991px){
+
+    .hero-section{
+
+        min-height:auto;
+
+        padding:45px 0 85px;
+
+        background-size:cover;
+
+        background-position:center;
+    }
+
+
+    .hero-title{
+        font-size:45px;
+    }
+
+
+    .map-wrapper{
+
+        max-width:480px;
+
+        margin-top:30px;
+    }
+
+
+    .hero-map-card{
+
+        max-width:430px;
+    }
+
+
+    .featured-space-preview{
+
+        left:5px;
+
+        top:-12px;
+    }
+
+
+    .stats-strip{
+
+        margin-top:-40px;
+    }
+
+}
+
+
+@media(max-width:576px){
+
+    .hero-section{
+
+        padding:35px 0 75px;
+
+        background-position:center;
+    }
+
+
+    .hero-title{
+
+        font-size:36px;
+
+        letter-spacing:-1px;
+    }
+
+
+    .hero-desc{
+
+        font-size:14px;
+    }
+
+
+    .hero-btns .btn{
+
+        width:100%;
+
+        text-align:center;
+    }
+
+
+    .map-wrapper{
+
+        padding-top:35px;
+    }
+
+
+    .hero-map-card{
+
+        padding:9px;
+
+        border-radius:18px;
+    }
+
+
+    #hero-mini-map{
+
+        height:175px !important;
+    }
+
+
+    .featured-space-preview{
+
+        width:165px;
+
+        height:108px;
+
+        left:0;
+
+        top:-12px;
+    }
+
+
+    .featured-label{
+
+        width:150px;
+
+        bottom:-40px;
+    }
+
+
+    .featured-label strong{
+
+        font-size:12px;
+    }
+
+
+    .featured-label span{
+
+        font-size:9px;
+    }
+
+
+    .map-card-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+    }
+
+
+    .hero-marker-legend{
+
+        gap:4px;
+    }
+
+
+    .legend-pill{
+
+        font-size:8px;
+
+        padding:5px 7px;
+    }
+
+
+    .space-card-img-wrap{
+
+        height:190px;
+    }
+
+}
+
+</style>
+
+
+<!-- =========================================================
+     HERO SECTION
+========================================================= -->
+
+<section class="hero-section">
+
+    <div class="container">
+
+        <div class="row align-items-center g-4">
+
+
+            <!-- =================================================
+                 LEFT CONTENT
+            ================================================= -->
+
+            <div class="col-lg-7">
+
+                <div class="hero-badge">
+
+                    <i class="fa-solid fa-satellite-dish"></i>
+
+                    Smart City Community Engagement Project
+
+                </div>
+
+
+                <h1 class="hero-title">
+
+                    Mapping Public Spaces.<br>
+
+                    <span>
+                        Understanding People.
+                    </span><br>
+
+                    Improving Communities.
+
+                </h1>
+
+
+                <p class="hero-desc">
+
+                    Explore, survey and discover how parks,
+                    playgrounds, promenades and other public
+                    spaces are used by different groups.
+                    Help us build better, safer and more
+                    accessible spaces for everyone.
+
+                </p>
+
+
+                <div class="hero-btns">
+
+                    <a href="{{ url_for('map_page') }}"
+                       class="btn btn-hero-primary">
+
+                        <i class="fa-solid fa-map-location-dot me-2"></i>
+
+                        Explore Map
+
+                    </a>
+
+
+                    <a href="{{ url_for('survey_page') }}"
+                       class="btn btn-hero-secondary">
+
+                        <i class="fa-solid fa-clipboard-list me-2"></i>
+
+                        Take Survey
+
+                    </a>
+
+
+                    <a href="{{ url_for('results_page') }}"
+                       class="btn btn-hero-secondary">
+
+                        <i class="fa-solid fa-chart-pie me-2"></i>
+
+                        View Results
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT MAP
+            ================================================= -->
+
+            <div class="col-lg-5">
+
+                <div class="map-wrapper">
+
+
+                    <!-- =================================================
+                         SMALL GREEN PARK IMAGE
+                    ================================================= -->
+
+                    <a href="/public-space/1" class="featured-space-preview text-decoration-none" title="View CIDCO Garden Details">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=900&q=95"
+                            alt="CIDCO Garden New Panvel">
+
+
+                        <span class="active-tag">
+
+                            ● Active
+
+                        </span>
+
+
+                        <div class="featured-label">
+
+                            <strong>
+                                CIDCO Garden
+                            </strong>
+
+                            <span>
+                                Garden • New Panvel East
+                            </span>
+
+                        </div>
+
+                    </a>
+
+
+                    <!-- =================================================
+                         MAP CARD
+                    ================================================= -->
+
+                    <div class="hero-map-card">
+
+
+                        <div class="map-card-header">
+
+                            <div class="d-flex align-items-center gap-2">
+
+                                <span class="live-map-badge">
+
+                                    <span class="live-dot"></span>
+
+                                    Live GIS Map
+
+                                </span>
+
+
+                                <span class="text-secondary small">
+
+                                    OpenStreetMap
+
+                                </span>
+
+                            </div>
+
+
+                            <a
+                                href="{{ url_for('map_page') }}"
+                                class="btn btn-sm btn-outline-success rounded-pill">
+
+                                Fullscreen
+
+                                <i class="fa-solid fa-expand ms-1"></i>
+
+                            </a>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             LIVE MAP
+                        ================================================= -->
+
+                        <div id="hero-mini-map"></div>
+
+
+                        <!-- =================================================
+                             LEGEND
+                        ================================================= -->
+
+                        <div class="hero-marker-legend">
+
+                            <span class="legend-pill">
+
+                                <span class="marker-dot dot-green"></span>
+
+                                Parks
+
+                            </span>
+
+
+                            <span class="legend-pill">
+
+                                <span class="marker-dot dot-orange"></span>
+
+                                Playgrounds
+
+                            </span>
+
+
+                            <span class="legend-pill">
+
+                                <span class="marker-dot dot-purple"></span>
+
+                                Promenades
+
+                            </span>
+
+
+                            <span class="legend-pill">
+
+                                <span class="marker-dot dot-blue"></span>
+
+                                Gardens
+
+                            </span>
+
+
+                            <span class="legend-pill">
+
+                                <span class="marker-dot dot-cyan"></span>
+
+                                Open Gyms
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     STATISTICS
+========================================================= -->
+
+<section class="stats-strip">
+
+    <div class="container">
+
+        <div class="row g-3 justify-content-center">
+
+
+            <div class="col-xl col-lg-4 col-md-6">
+
+                <div class="stat-glass-card">
+
+                    <div class="stat-icon-wrapper icon-emerald">
+
+                        <i class="fa-solid fa-map-pin"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="stat-number"
+                             id="stat-spaces">
+
+                            10
+
+                        </div>
+
+                        <div class="stat-label">
+
+                            Spaces Surveyed
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-xl col-lg-4 col-md-6">
+
+                <div class="stat-glass-card">
+
+                    <div class="stat-icon-wrapper icon-cyan">
+
+                        <i class="fa-solid fa-users-viewfinder"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="stat-number"
+                             id="stat-responses">
+
+                            320
+
+                        </div>
+
+                        <div class="stat-label">
+
+                            Survey Responses
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-xl col-lg-4 col-md-6">
+
+                <div class="stat-glass-card">
+
+                    <div class="stat-icon-wrapper icon-emerald">
+
+                        <i class="fa-solid fa-tree"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="stat-number"
+                             id="stat-parks">
+
+                            --
+
+                        </div>
+
+                        <div class="stat-label">
+
+                            Civic Parks
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-xl col-lg-4 col-md-6">
+
+                <div class="stat-glass-card">
+
+                    <div class="stat-icon-wrapper icon-orange">
+
+                        <i class="fa-solid fa-child-reaching"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="stat-number"
+                             id="stat-playgrounds">
+
+                            --
+
+                        </div>
+
+                        <div class="stat-label">
+
+                            Playgrounds
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-xl col-lg-4 col-md-6">
+
+                <div class="stat-glass-card">
+
+                    <div class="stat-icon-wrapper icon-purple">
+
+                        <i class="fa-solid fa-person-walking"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="stat-number"
+                             id="stat-promenades">
+
+                            --
+
+                        </div>
+
+                        <div class="stat-label">
+
+                            Promenades
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     FEATURES
+========================================================= -->
+
+<section class="py-5 mt-4" style="background-color: #F4FAFC;">
+
+    <div class="container py-4">
+
+        <div class="section-header text-center mb-5">
+
+            <span class="section-pill badge px-3 py-2 rounded-pill fw-bold text-uppercase mb-2" style="background: rgba(33, 245, 139, 0.15); color: #16C784; border: 1px solid rgba(22, 199, 132, 0.3);">
+                OUR FEATURES
+            </span>
+
+            <h2 class="section-title fw-bold display-6 mb-3" style="color: #06283D;">
+                Everything You Need to Know<br>About Public Spaces
+            </h2>
+
+            <p class="section-subtitle text-muted mx-auto" style="max-width: 680px; font-size: 1.05rem;">
+                From digital maps to survey insights, we bring data and people together to make public spaces better for everyone.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- Card 1: Interactive Map -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100 p-4 rounded-4 shadow-sm bg-white" style="border: 1px solid rgba(6, 40, 61, 0.06); transition: all 0.3s ease;">
+
+                    <div class="feature-icon-box mb-3 d-inline-flex align-items-center justify-content-center rounded-3" style="width: 54px; height: 54px; background: linear-gradient(135deg, #1687FF, #21F58B); color: #ffffff; font-size: 1.35rem;">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-2" style="color: #06283D;">
+                        Interactive Map
+                    </h4>
+
+                    <p class="text-muted small mb-4">
+                        Explore public spaces with interactive real-time location data.
+                    </p>
+
+                    <a href="{{ url_for('map_page') }}"
+                       class="btn btn-outline-primary rounded-pill btn-sm fw-semibold mt-auto">
+                        Explore Map
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 2: Public Survey -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100 p-4 rounded-4 shadow-sm bg-white" style="border: 1px solid rgba(6, 40, 61, 0.06); transition: all 0.3s ease;">
+
+                    <div class="feature-icon-box mb-3 d-inline-flex align-items-center justify-content-center rounded-3" style="width: 54px; height: 54px; background: linear-gradient(135deg, #21F58B, #16C784); color: #031B2B; font-size: 1.35rem;">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-2" style="color: #06283D;">
+                        Public Survey
+                    </h4>
+
+                    <p class="text-muted small mb-4">
+                        Share your experience and help improve community spaces.
+                    </p>
+
+                    <a href="{{ url_for('survey_page') }}"
+                       class="btn btn-outline-success rounded-pill btn-sm fw-semibold mt-auto">
+                        Take Survey
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 3: Survey Results -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100 p-4 rounded-4 shadow-sm bg-white" style="border: 1px solid rgba(6, 40, 61, 0.06); transition: all 0.3s ease;">
+
+                    <div class="feature-icon-box mb-3 d-inline-flex align-items-center justify-content-center rounded-3" style="width: 54px; height: 54px; background: linear-gradient(135deg, #7B2CFF, #1687FF); color: #ffffff; font-size: 1.35rem;">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-2" style="color: #06283D;">
+                        Survey Results
+                    </h4>
+
+                    <p class="text-muted small mb-4">
+                        View community insights through beautiful charts.
+                    </p>
+
+                    <a href="{{ url_for('results_page') }}"
+                       class="btn btn-outline-primary rounded-pill btn-sm fw-semibold mt-auto">
+                        View Results
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 4: Report Issues -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100 p-4 rounded-4 shadow-sm bg-white" style="border: 1px solid rgba(6, 40, 61, 0.06); transition: all 0.3s ease;">
+
+                    <div class="feature-icon-box mb-3 d-inline-flex align-items-center justify-content-center rounded-3" style="width: 54px; height: 54px; background: linear-gradient(135deg, #FF7A00, #FF2FA4); color: #ffffff; font-size: 1.35rem;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-2" style="color: #06283D;">
+                        Report Issues
+                    </h4>
+
+                    <p class="text-muted small mb-4">
+                        Help identify problems and maintenance issues.
+                    </p>
+
+                    <a href="{{ url_for('report_page') }}"
+                       class="btn btn-outline-warning rounded-pill btn-sm fw-semibold mt-auto">
+                        Report Issue
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 5: Facility Mapping -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100 p-4 rounded-4 shadow-sm bg-white" style="border: 1px solid rgba(6, 40, 61, 0.06); transition: all 0.3s ease;">
+
+                    <div class="feature-icon-box mb-3 d-inline-flex align-items-center justify-content-center rounded-3" style="width: 54px; height: 54px; background: linear-gradient(135deg, #1687FF, #7B2CFF); color: #ffffff; font-size: 1.35rem;">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-2" style="color: #06283D;">
+                        Facility Mapping
+                    </h4>
+
+                    <p class="text-muted small mb-4">
+                        Discover facilities and services available in public spaces.
+                    </p>
+
+                    <a href="{{ url_for('spaces_page') }}"
+                       class="btn btn-outline-info rounded-pill btn-sm fw-semibold mt-auto">
+                        Browse Facilities
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     PUBLIC SPACES
+========================================================= -->
+
+<!-- =========================================================
+     EXPLORE PUBLIC SPACES SECTION (DARK NAVY)
+========================================================= -->
+
+<section class="py-5 text-white" style="background: linear-gradient(180deg, #06283D 0%, #031B2B 100%);">
+
+    <div class="container py-4">
+
+        <div class="row align-items-center mb-5">
+
+            <div class="col-lg-7">
+
+                <span class="badge px-3 py-2 rounded-pill fw-bold text-uppercase mb-3" style="background: rgba(33, 245, 139, 0.15); color: #21F58B; border: 1px solid rgba(33, 245, 139, 0.3);">
+                    <i class="fa-solid fa-compass me-1"></i> Public Space Categories
+                </span>
+
+                <h2 class="fw-bold display-5 text-white mb-3">
+                    Discover. Explore. Get Involved.
+                </h2>
+
+                <p class="text-white-50 lead mb-0" style="max-width: 650px;">
+                    Find parks, playgrounds, promenades and more in your area. Check facilities, see how people use them and share your feedback.
+                </p>
+
+            </div>
+
+            <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+
+                <a href="{{ url_for('spaces_page') }}" class="btn btn-hero-primary px-4 py-3 rounded-pill fw-bold">
+                    View All Spaces <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- 5 CATEGORY CARDS -->
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- Card 1: Parks -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card border-0 rounded-4 overflow-hidden h-100 shadow-lg" style="background: #0B3954; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.3s ease;">
+
+                    <div class="position-relative" style="height: 220px; overflow: hidden;">
+
+                        <img src="{{ url_for('static', filename='images/park.jpg') }}" alt="Parks" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;">
+
+                        <span class="position-absolute top-0 start-0 m-3 badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(6, 40, 61, 0.88); backdrop-filter: blur(8px); color: #21F58B; border: 1px solid rgba(33,245,139,0.3);">
+                            <i class="fa-solid fa-tree me-1"></i> Parks
+                        </span>
+
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column text-white">
+
+                        <h4 class="fw-bold mb-2 text-white">
+                            Parks
+                        </h4>
+
+                        <p class="text-white-50 small flex-grow-1 mb-4">
+                            Spacious green retreats featuring walking tracks, tree canopies, lawn areas, benches, and serene community relaxation zones.
+                        </p>
+
+                        <a href="{{ url_for('spaces_page', type='Parks') }}" class="btn btn-outline-light rounded-pill btn-sm fw-semibold py-2 mt-auto">
+                            Explore Parks <i class="fa-solid fa-arrow-right ms-1" style="color: #21F58B;"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 2: Playgrounds -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card border-0 rounded-4 overflow-hidden h-100 shadow-lg" style="background: #0B3954; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.3s ease;">
+
+                    <div class="position-relative" style="height: 220px; overflow: hidden;">
+
+                        <img src="{{ url_for('static', filename='images/playground.jpg') }}" alt="Playgrounds" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;">
+
+                        <span class="position-absolute top-0 start-0 m-3 badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(6, 40, 61, 0.88); backdrop-filter: blur(8px); color: #FF7A00; border: 1px solid rgba(255,122,0,0.3);">
+                            <i class="fa-solid fa-child-reaching me-1"></i> Playgrounds
+                        </span>
+
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column text-white">
+
+                        <h4 class="fw-bold mb-2 text-white">
+                            Playgrounds
+                        </h4>
+
+                        <p class="text-white-50 small flex-grow-1 mb-4">
+                            Active child-friendly zones equipped with modern swings, jungle gyms, slides, soft rubber turf, and shaded family seating.
+                        </p>
+
+                        <a href="{{ url_for('spaces_page', type='Playgrounds') }}" class="btn btn-outline-light rounded-pill btn-sm fw-semibold py-2 mt-auto">
+                            Explore Playgrounds <i class="fa-solid fa-arrow-right ms-1" style="color: #FF7A00;"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 3: Promenades -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card border-0 rounded-4 overflow-hidden h-100 shadow-lg" style="background: #0B3954; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.3s ease;">
+
+                    <div class="position-relative" style="height: 220px; overflow: hidden;">
+
+                        <img src="{{ url_for('static', filename='images/promenade.jpg') }}" alt="Promenades" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;">
+
+                        <span class="position-absolute top-0 start-0 m-3 badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(6, 40, 61, 0.88); backdrop-filter: blur(8px); color: #7B2CFF; border: 1px solid rgba(123,44,255,0.3);">
+                            <i class="fa-solid fa-person-walking me-1"></i> Promenades
+                        </span>
+
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column text-white">
+
+                        <h4 class="fw-bold mb-2 text-white">
+                            Promenades
+                        </h4>
+
+                        <p class="text-white-50 small flex-grow-1 mb-4">
+                            Scenic waterfront walkways and urban pedestrian corridors designed for morning runs, sunset strolls, and community gathering.
+                        </p>
+
+                        <a href="{{ url_for('spaces_page', type='Promenades') }}" class="btn btn-outline-light rounded-pill btn-sm fw-semibold py-2 mt-auto">
+                            Explore Promenades <i class="fa-solid fa-arrow-right ms-1" style="color: #7B2CFF;"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 4: Gardens -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card border-0 rounded-4 overflow-hidden h-100 shadow-lg" style="background: #0B3954; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.3s ease;">
+
+                    <div class="position-relative" style="height: 220px; overflow: hidden;">
+
+                        <img src="{{ url_for('static', filename='images/garden.jpg') }}" alt="Gardens" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;">
+
+                        <span class="position-absolute top-0 start-0 m-3 badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(6, 40, 61, 0.88); backdrop-filter: blur(8px); color: #FF2FA4; border: 1px solid rgba(255,47,164,0.3);">
+                            <i class="fa-solid fa-seedling me-1"></i> Gardens
+                        </span>
+
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column text-white">
+
+                        <h4 class="fw-bold mb-2 text-white">
+                            Gardens
+                        </h4>
+
+                        <p class="text-white-50 small flex-grow-1 mb-4">
+                            Botanical sanctuaries with curated flowerbeds, native biodiversity, fragrant shrubs, and peaceful shaded rest pavilions.
+                        </p>
+
+                        <a href="{{ url_for('spaces_page', type='Gardens') }}" class="btn btn-outline-light rounded-pill btn-sm fw-semibold py-2 mt-auto">
+                            Explore Gardens <i class="fa-solid fa-arrow-right ms-1" style="color: #FF2FA4;"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Card 5: Open Gym -->
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card border-0 rounded-4 overflow-hidden h-100 shadow-lg" style="background: #0B3954; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.3s ease;">
+
+                    <div class="position-relative" style="height: 220px; overflow: hidden;">
+
+                        <img src="{{ url_for('static', filename='images/open-gym.jpg') }}" alt="Open Gym" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;">
+
+                        <span class="position-absolute top-0 start-0 m-3 badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(6, 40, 61, 0.88); backdrop-filter: blur(8px); color: #1687FF; border: 1px solid rgba(22,135,255,0.3);">
+                            <i class="fa-solid fa-dumbbell me-1"></i> Open Gym
+                        </span>
+
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column text-white">
+
+                        <h4 class="fw-bold mb-2 text-white">
+                            Open Gym
+                        </h4>
+
+                        <p class="text-white-50 small flex-grow-1 mb-4">
+                            Free-to-access outdoor fitness installations featuring weather-resistant calisthenics apparatus, cross-trainers, and stretching bars.
+                        </p>
+
+                        <a href="{{ url_for('spaces_page', type='Open Gyms') }}" class="btn btn-outline-light rounded-pill btn-sm fw-semibold py-2 mt-auto">
+                            Explore Open Gym <i class="fa-solid fa-arrow-right ms-1" style="color: #1687FF;"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     CTA SECTION (CENTERED WITH GREEN GRADIENT BUTTON)
+========================================================= -->
+
+<section class="py-5" style="background-color: #F4FAFC;">
+
+    <div class="container py-4">
+
+        <div class="cta-banner text-center p-5 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #06283D, #0B3954); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.08);">
+
+            <span class="badge px-3 py-2 rounded-pill fw-bold mb-3 text-uppercase" style="background: rgba(33, 245, 139, 0.15); color: #21F58B; border: 1px solid rgba(33, 245, 139, 0.3);">
+                <i class="fa-solid fa-bullhorn me-1"></i> Community Voice
+            </span>
+
+            <h2 class="display-6 fw-bold mb-3 text-white">
+                Your Opinion Matters!
+            </h2>
+
+            <p class="lead text-white-50 mx-auto mb-4" style="max-width: 650px;">
+                Help us understand how public spaces are used and what improvements the community needs.
+            </p>
+
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+                <a href="{{ url_for('survey_page') }}"
+                   class="btn btn-hero-primary px-5 py-3 rounded-pill fw-bold fs-5">
+                    <i class="fa-solid fa-clipboard-question me-2"></i>
+                    Take the Survey
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+/* =========================================================
+   PUBLICSPACE360 LIVE HERO MAP
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const mapElement =
+        document.getElementById("hero-mini-map");
+
+
+    if(!mapElement){
+        return;
+    }
+
+
+    /* =====================================================
+       CREATE MAP
+    ===================================================== */
+
+    const heroMap = L.map(
+        "hero-mini-map",
+        {
+            zoomControl:false,
+
+            attributionControl:true,
+
+            scrollWheelZoom:false
+        }
+    ).setView(
+        [18.9950, 73.1180],
+        13
+    );
+
+
+    /* =====================================================
+       CLEAR OPEN STREET MAP TILES
+    ===================================================== */
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom:19,
+
+            minZoom:10,
+
+            detectRetina:true,
+
+            updateWhenZooming:true,
+
+            updateWhenIdle:true,
+
+            keepBuffer:2
+        }
+    ).addTo(heroMap);
+
+
+    /* =====================================================
+       ZOOM CONTROL
+    ===================================================== */
+
+    L.control.zoom({
+        position:"bottomright"
+    }).addTo(heroMap);
+
+
+    /* =====================================================
+       LOAD PUBLIC SPACES
+    ===================================================== */
+
+    fetch(
+        "/api/spaces",
+        {
+            cache:"no-store"
+        }
+    )
+
+    .then(response => {
+
+        if(!response.ok){
+
+            throw new Error(
+                "Unable to load spaces"
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+
+    .then(spaces => {
+
+
+        /* =================================================
+           CATEGORY COLORS
+        ================================================= */
+
+        const colorMap = {
+
+            "Parks":"#10b981",
+
+            "Playgrounds":"#f97316",
+
+            "Promenades":"#8b5cf6",
+
+            "Gardens":"#3b82f6",
+
+            "Open Gyms":"#06b6d4"
+
+        };
+
+
+        /* =================================================
+           COUNTERS
+        ================================================= */
+
+        let count = {
+
+            Parks:0,
+
+            Playgrounds:0,
+
+            Promenades:0,
+
+            Gardens:0,
+
+            "Open Gyms":0
+
+        };
+
+
+        /* =================================================
+           ADD MARKERS
+        ================================================= */
+
+        spaces.forEach(sp => {
+
+
+            if(
+                !sp.latitude ||
+                !sp.longitude
+            ){
+
+                return;
+
+            }
+
+
+            const color =
+                colorMap[sp.type] ||
+                "#10b981";
+
+
+            if(
+                count[sp.type] !== undefined
+            ){
+
+                count[sp.type]++;
+
+            }
+
+
+            /* =============================================
+               CUSTOM CIRCLE MARKER
+            ============================================= */
+
+            const marker =
+                L.circleMarker(
+
+                    [
+                        Number(sp.latitude),
+
+                        Number(sp.longitude)
+                    ],
+
+                    {
+
+                        radius:7,
+
+                        fillColor:color,
+
+                        color:"#ffffff",
+
+                        weight:2,
+
+                        opacity:1,
+
+                        fillOpacity:.95
+                    }
+
+                )
+                .addTo(heroMap);
+
+
+            /* =============================================
+               POPUP
+            ============================================= */
+
+            marker.bindPopup(`
+
+                <div
+                    style="
+                        min-width:175px;
+                        font-family:Arial,sans-serif;
+                    "
+                >
+
+                    <strong
+                        style="
+                            color:#0f172a;
+                            font-size:13px;
+                        "
+                    >
+
+                        ${sp.name || "Public Space"}
+
+                    </strong>
+
+
+                    <br>
+
+
+                    <span
+                        style="
+                            display:inline-block;
+                            margin-top:5px;
+                            padding:4px 8px;
+                            border-radius:20px;
+                            background:${color};
+                            color:white;
+                            font-size:9px;
+                            font-weight:bold;
+                        "
+                    >
+
+                        ${sp.type || "Space"}
+
+                    </span>
+
+
+                    <p
+                        style="
+                            color:#64748b;
+                            font-size:10px;
+                            margin:7px 0;
+                        "
+                    >
+
+                        ${sp.address || "Public Space"}
+
+                    </p>
+
+
+                    <a
+                        href="/public-space/${sp.id}"
+                        style="
+                            color:#059669;
+                            font-weight:bold;
+                            font-size:10px;
+                            text-decoration:none;
+                        "
+                    >
+
+                        View Details →
+
+                    </a>
+
+                </div>
+
+            `);
+
+        });
+
+
+        /* =================================================
+           UPDATE STATISTICS
+        ================================================= */
+
+        const parks =
+            document.getElementById(
+                "stat-parks"
+            );
+
+
+        const playgrounds =
+            document.getElementById(
+                "stat-playgrounds"
+            );
+
+
+        const promenades =
+            document.getElementById(
+                "stat-promenades"
+            );
+
+
+        const spacesCount =
+            document.getElementById(
+                "stat-spaces"
+            );
+
+
+        if(parks){
+
+            parks.textContent =
+                count.Parks;
+
+        }
+
+
+        if(playgrounds){
+
+            playgrounds.textContent =
+                count.Playgrounds;
+
+        }
+
+
+        if(promenades){
+
+            promenades.textContent =
+                count.Promenades;
+
+        }
+
+
+        if(spacesCount){
+
+            spacesCount.textContent =
+                spaces.length;
+
+        }
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            "Hero map error:",
+            error
+        );
+
+    });
+
+
+    /* =====================================================
+       FIX LEAFLET SIZE
+    ===================================================== */
+
+    setTimeout(() => {
+
+        heroMap.invalidateSize();
+
+    },500);
+
+
+    /* =====================================================
+       GREEN PARK CARD MOUSE MOVEMENT
+    ===================================================== */
+
+    const parkCard =
+        document.querySelector(
+            ".featured-space-preview"
+        );
+
+
+    if(parkCard){
+
+        parkCard.addEventListener(
+            "mousemove",
+            function(e){
+
+                const rect =
+                    parkCard.getBoundingClientRect();
+
+
+                const x =
+                    e.clientX - rect.left;
+
+
+                const y =
+                    e.clientY - rect.top;
+
+
+                const rotateY =
+                    ((x / rect.width) - .5) * 8;
+
+
+                const rotateX =
+                    ((y / rect.height) - .5) * -8;
+
+
+                parkCard.style.transform =
+                    `
+                    translateY(-8px)
+                    perspective(700px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    scale(1.03)
+                    `;
+
+            }
+        );
+
+
+        parkCard.addEventListener(
+            "mouseleave",
+            function(){
+
+                parkCard.style.transform =
+                    "";
+
+            }
+        );
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

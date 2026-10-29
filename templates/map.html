@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Panvel Gardens & Playgrounds | PublicSpace360 Interactive Map{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet & MarkerCluster CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+<style>
+  /* =========================================================
+     MAP DISCOVERY APPLICATION LAYOUT
+     ========================================================= */
+  .explore-map-wrapper {
+    display: flex;
+    height: calc(100vh - 72px);
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #f8fafc;
+  }
+
+  /* Left Side Panel */
+  .map-sidebar {
+    width: 440px;
+    max-width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-right: 1px solid rgba(15, 23, 42, 0.1);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 1000;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 1.25rem 1.25rem 0.75rem 1.25rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+  }
+
+  .filter-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  /* Active Preview Showcase */
+  .active-preview-container {
+    background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+    border-bottom: 2px solid #00adb5;
+    flex-shrink: 0;
+    animation: fadeInPreview 0.35s ease;
+  }
+  @keyframes fadeInPreview {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .active-preview-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 173, 181, 0.25);
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 173, 181, 0.12);
+  }
+
+  .active-preview-img {
+    height: 170px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Scrollable Cards List */
+  .sidebar-cards-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem 2rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Public Space Card (Requirement 15) */
+  .space-result-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  .space-result-card:hover {
+    border-color: #00adb5;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(0, 173, 181, 0.15);
+  }
+  .space-result-card.selected {
+    border: 2px solid #00adb5;
+    background: #f0fdfa;
+    box-shadow: 0 8px 24px rgba(0, 173, 181, 0.25);
+  }
+  .space-card-img {
+    height: 155px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .facility-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+  .facility-pill i {
+    color: #10b981;
+    font-size: 0.7rem;
+  }
+
+  /* Map Viewport */
+  .map-viewport {
+    flex-grow: 1;
+    height: 100%;
+    position: relative;
+    background: #e2e8f0;
+  }
+  #gis-map {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Overlay Toolbar on Map */
+  .map-overlay-controls {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 999;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .map-overlay-controls > * {
+    pointer-events: auto;
+  }
+
+  .legend-pill, .engine-pill {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    padding: 0.45rem 0.85rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-garden { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+  .dot-playground { background: #0284c7; box-shadow: 0 0 6px rgba(2, 132, 199, 0.6); }
+  .legend-sep { color: #cbd5e1; }
+
+  /* Custom Markers */
+  .panvel-marker-pin {
+    width: 40px;
+    height: 40px;
+    border-radius: 50% 50% 50% 0;
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -20px 0 0 -20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .panvel-marker-pin i {
+    transform: rotate(45deg);
+    color: #ffffff;
+    font-size: 16px;
+  }
+  .panvel-marker-garden {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+  .panvel-marker-playground {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+  }
+  .panvel-marker-pin.active-highlight {
+    animation: markerPulse 1.5s infinite;
+    border-color: #facc15;
+    z-index: 1000 !important;
+  }
+  @keyframes markerPulse {
+    0% { transform: rotate(-45deg) scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+    70% { transform: rotate(-45deg) scale(1.18); box-shadow: 0 0 0 16px rgba(234, 179, 8, 0); }
+    100% { transform: rotate(-45deg) scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+  }
+
+  /* Custom Leaflet Popup (Requirement 7) */
+  .leaflet-popup-content-wrapper {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    line-height: 1.4;
+  }
+  .rich-marker-popup {
+    width: 300px;
+    font-family: inherit;
+  }
+  .rich-marker-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+
+  /* Cluster Icon Styling */
+  .marker-cluster-small { background-color: rgba(16, 185, 129, 0.3); }
+  .marker-cluster-small div { background-color: rgba(16, 185, 129, 0.85); color: #fff; font-weight: 700; }
+  .marker-cluster-medium { background-color: rgba(2, 132, 199, 0.3); }
+  .marker-cluster-medium div { background-color: rgba(2, 132, 199, 0.85); color: #fff; font-weight: 700; }
+
+  /* Mobile Responsive */
+  @media (max-width: 991px) {
+    .explore-map-wrapper {
+      flex-direction: column-reverse;
+      height: auto;
+      min-height: calc(100vh - 72px);
+    }
+    .map-sidebar {
+      width: 100%;
+      height: auto;
+      max-height: 550px;
+    }
+    .map-viewport {
+      height: 420px;
+      flex-grow: 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="explore-map-wrapper">
+  
+  <!-- =========================================================
+       LEFT SIDE PANEL (Search, Filters, Active Preview, Cards)
+       ========================================================= -->
+  <aside class="map-sidebar" id="mapSidebar">
+    
+    <!-- Sticky Control Header -->
+    <div class="sidebar-header">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-success bg-opacity-10 text-success p-2 rounded-3">
+            <i class="fa-solid fa-map-location-dot fs-6"></i>
+          </span>
+          <div>
+            <h6 class="fw-bold text-dark m-0">Panvel Spatial Discovery</h6>
+            <div class="text-muted" style="font-size: 0.72rem;">Gardens & Playgrounds Geospatial Explorer</div>
+          </div>
+        </div>
+        <span class="badge bg-primary rounded-pill px-2 py-1" id="spacesCountBadge">Loading...</span>
+      </div>
+
+      <!-- Search Garden/Playground Box (Requirement 2) -->
+      <div class="mb-2 position-relative">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light border-end-0 text-muted">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" id="mapSearchInput" class="form-control bg-light border-start-0 ps-0" placeholder="Search garden, playground or area..." autocomplete="off">
+          <button class="btn btn-outline-secondary" type="button" id="mapClearSearch" style="display: none;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dropdown Filter Controls (Requirement 13) -->
+      <div class="row g-2 mb-2">
+        <!-- Area Filter -->
+        <div class="col-4">
+          <label class="filter-label"><i class="fa-solid fa-location-dot text-danger me-1"></i>Area</label>
+          <select id="mapAreaFilter" class="form-select form-select-sm">
+            <option value="All">All Areas</option>
+            {% for a in areas %}
+              <option value="{{ a.name }}">{{ a.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Type Filter -->
+        <div class="col-4">
+          <label class="filter-label"><i class="fa-solid fa-layer-group text-primary me-1"></i>Type</label>
+          <select id="mapTypeFilter" class="form-select form-select-sm">
+            <option value="All">All Types</option>
+            <option value="Garden">🟢 Garden</option>
+            <option value="Playground">🔵 Playground</option>
+          </select>
+        </div>
+
+        <!-- Facility Filter -->
+        <div class="col-4">
+          <label class="filter-label"><i class="fa-solid fa-list-check text-success me-1"></i>Facility</label>
+          <select id="mapFacilityFilter" class="form-select form-select-sm">
+            <option value="All">All Facilities</option>
+            <option value="Walking Track">🚶 Walking Track</option>
+            <option value="Children's Play Area">🧒 Play Area</option>
+            <option value="Open Gym">🏋 Open Gym</option>
+            <option value="Seating Benches">🪑 Benches</option>
+            <option value="Drinking Water">💧 Water</option>
+            <option value="Lighting">💡 Lighting</option>
+            <option value="Dustbins">🗑 Dustbins</option>
+            <option value="Parking">🅿 Parking</option>
+            <option value="Sports Area">⚽ Sports</option>
+            <option value="Washroom">🚻 Washroom</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filter status bar -->
+      <div class="d-flex justify-content-between align-items-center small text-muted pt-1">
+        <span>Click marker or card to zoom</span>
+        <button id="resetFiltersBtn" class="btn btn-link btn-sm text-decoration-none p-0 text-muted" style="font-size: 0.75rem;">Reset Filters</button>
+      </div>
+    </div>
+
+    <!-- Active Highlighted Preview Section (Requirement 2 & 3) -->
+    <div id="activeSpaceShowcase" class="active-preview-container p-3" style="display: none;">
+      <!-- Populated dynamically via JS when marker is clicked or searched -->
+    </div>
+
+    <!-- Scrollable Matching Results Cards List (Requirement 15) -->
+    <div class="sidebar-cards-list" id="sidebarCardsList">
+      <div class="text-center py-5 text-muted">
+        <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+        <p class="small">Loading registered Panvel public spaces...</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =========================================================
+       RIGHT MAP CANVAS (Google Maps API / Leaflet Fallback)
+       ========================================================= -->
+  <main class="map-viewport" id="mapViewport">
+    
+    <!-- Floating Overlay Controls on Top of Map -->
+    <div class="map-overlay-controls">
+      <div class="d-flex align-items-center gap-2">
+        <!-- Marker Legend -->
+        <div class="legend-pill shadow-sm">
+          <span class="legend-dot dot-garden"></span> <span class="small fw-bold">Garden</span>
+          <span class="legend-sep">|</span>
+          <span class="legend-dot dot-playground"></span> <span class="small fw-bold">Playground</span>
+        </div>
+
+        <!-- GIS Engine Status Indicator -->
+        <div class="engine-pill shadow-sm" id="engineStatusPill">
+          <i class="fa-solid fa-map text-success"></i>
+          <span class="small fw-semibold" id="engineNameText">Leaflet + OpenStreetMap</span>
+        </div>
+      </div>
+
+      <!-- Quick Zoom / Layer Buttons -->
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-light shadow-sm rounded-pill px-3 fw-semibold text-dark" id="recenterMapBtn" title="Center Panvel">
+          <i class="fa-solid fa-crosshairs me-1 text-primary"></i> Panvel Center
+        </button>
+        <button class="btn btn-sm btn-light shadow-sm rounded-pill px-3 fw-semibold text-dark" id="toggleTileLayerBtn" title="Toggle Map Layer">
+          <i class="fa-solid fa-layer-group me-1 text-info"></i> Satellite
+        </button>
+      </div>
+    </div>
+
+    <!-- Interactive Map Container -->
+    <div id="gis-map"></div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet.js -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet MarkerCluster Plugin (Requirement 14) -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<!-- Optional Google Maps API injection if key is configured -->
+{% if google_maps_api_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+{% endif %}
+
+<script>
+  window.PANVEL_MAP_CONFIG = {
+    googleMapsApiKey: "{{ google_maps_api_key or '' }}",
+    defaultCenter: [18.9950, 73.1180], // Centered right in Panvel
+    defaultZoom: 13
+  };
+</script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

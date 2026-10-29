@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}
+Public Spaces Directory | PublicSpace360
+{% endblock %}
+
+{% block content %}
+<!-- =========================================================
+     PAGE HEADER BANNER
+========================================================= -->
+<section class="page-banner py-5" style="background: linear-gradient(135deg, var(--ps-dark) 0%, var(--ps-dark-2) 100%); border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div class="container py-3">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(33, 245, 139, 0.12); border: 1px solid rgba(33, 245, 139, 0.3); color: var(--ps-green); font-size: 0.85rem; font-weight: 600;">
+                    <i class="fa-solid fa-tree-city"></i>
+                    <span>Civic Spatial Inventory</span>
+                </div>
+                <h1 class="text-white fw-bold display-6 mb-2">Explore Public Spaces</h1>
+                <p class="text-white-50 mb-0 lead" style="font-size: 1.05rem;">
+                    Discover parks, playgrounds, gardens, promenades, and open gyms across your city. View operating hours, facilities, and citizen ratings.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                <a href="{{ url_for('map_page') }}" class="btn btn-emerald px-4 py-2 rounded-pill shadow-sm">
+                    <i class="fa-solid fa-map-location-dot me-2"></i>
+                    View on Interactive Map
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     FILTER & SEARCH CONTROL BAR
+========================================================= -->
+<section class="filter-bar py-4 bg-white border-bottom shadow-sm sticky-top" style="top: 70px; z-index: 990;">
+    <div class="container">
+        <div class="row g-3 align-items-center">
+            <!-- Category Filter Pills -->
+            <div class="col-lg-8 col-md-7">
+                <div class="d-flex flex-wrap gap-2 filter-pills-wrapper" id="categoryFilters">
+                    <button type="button" class="btn btn-sm rounded-pill filter-btn active" data-category="All">
+                        <i class="fa-solid fa-border-all me-1"></i> All Spaces
+                    </button>
+                    <button type="button" class="btn btn-sm rounded-pill filter-btn" data-category="Parks">
+                        <i class="fa-solid fa-tree me-1" style="color: #21F58B;"></i> Parks
+                    </button>
+                    <button type="button" class="btn btn-sm rounded-pill filter-btn" data-category="Playgrounds">
+                        <i class="fa-solid fa-child-reaching me-1" style="color: #FF7A00;"></i> Playgrounds
+                    </button>
+                    <button type="button" class="btn btn-sm rounded-pill filter-btn" data-category="Promenades">
+                        <i class="fa-solid fa-water me-1" style="color: #7B2CFF;"></i> Promenades
+                    </button>
+                    <button type="button" class="btn btn-sm rounded-pill filter-btn" data-category="Gardens">
+                        <i class="fa-solid fa-spa me-1" style="color: #FF2FA4;"></i> Gardens
+                    </button>
+                    <button type="button" class="btn btn-sm rounded-pill filter-btn" data-category="Open Gyms">
+                        <i class="fa-solid fa-dumbbell me-1" style="color: #1687FF;"></i> Open Gyms
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Input -->
+            <div class="col-lg-4 col-md-5">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="spaceSearchInput" class="form-control bg-light border-start-0 ps-0" placeholder="Search by name, facility or address..." value="{{ search_query or '' }}">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" title="Clear search" style="display: none;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     SPACES DIRECTORY GRID
+========================================================= -->
+<section class="spaces-directory-section py-5" style="background-color: var(--ps-light, #F4FAFC); min-height: 60vh;">
+    <div class="container">
+        <!-- Results Summary Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="text-muted small">
+                Showing <span id="displayedCount" class="fw-bold text-dark">--</span> public spaces
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="sortSelect" class="small text-muted mb-0">Sort by:</label>
+                <select id="sortSelect" class="form-select form-select-sm" style="width: auto;">
+                    <option value="visitors-desc">Most Visited</option>
+                    <option value="rating-desc">Highest Rated</option>
+                    <option value="name-asc">Name (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="spacesLoading" class="text-center py-5">
+            <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading public spaces...</span>
+            </div>
+            <p class="text-muted mt-3">Loading public spaces data from MySQL database...</p>
+        </div>
+
+        <!-- Spaces Card Grid -->
+        <div class="row g-4" id="spacesGrid" style="display: none;">
+            <!-- Dynamically injected cards -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="spacesEmptyState" class="text-center py-5" style="display: none;">
+            <div class="empty-icon-wrapper mb-3" style="font-size: 3.5rem; color: #94a3b8;">
+                <i class="fa-solid fa-map-location"></i>
+            </div>
+            <h4 class="fw-bold text-dark">No Public Spaces Found</h4>
+            <p class="text-muted mx-auto" style="max-width: 480px;">
+                We couldn't find any public spaces matching your current category filter or search query. Try clearing filters or searching for another location.
+            </p>
+            <button type="button" class="btn btn-outline-success rounded-pill px-4" id="resetFiltersBtn">
+                <i class="fa-solid fa-rotate-left me-1"></i> Reset Filters
+            </button>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let allSpaces = [];
+    let activeCategory = "{{ active_type or 'All' }}";
+    const initialQuery = "{{ search_query or '' }}";
+
+    const spacesGrid = document.getElementById("spacesGrid");
+    const spacesLoading = document.getElementById("spacesLoading");
+    const spacesEmptyState = document.getElementById("spacesEmptyState");
+    const displayedCount = document.getElementById("displayedCount");
+    const searchInput = document.getElementById("spaceSearchInput");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const sortSelect = document.getElementById("sortSelect");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    // Preselect category if passed via URL
+    if (activeCategory && activeCategory !== 'All') {
+        filterButtons.forEach(btn => {
+            if (btn.dataset.category.toLowerCase() === activeCategory.toLowerCase()) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // Category badge color map
+    const categoryTheme = {
+        'Parks': { badge: 'bg-emerald-subtle text-success border border-success-subtle', icon: 'fa-tree', color: '#21F58B' },
+        'Playgrounds': { badge: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle', icon: 'fa-child-reaching', color: '#FF7A00' },
+        'Promenades': { badge: 'bg-purple-subtle text-primary border border-primary-subtle', icon: 'fa-water', color: '#7B2CFF' },
+        'Gardens': { badge: 'bg-danger-subtle text-danger border border-danger-subtle', icon: 'fa-spa', color: '#FF2FA4' },
+        'Open Gyms': { badge: 'bg-info-subtle text-info-emphasis border border-info-subtle', icon: 'fa-dumbbell', color: '#1687FF' }
+    };
+
+    // Fetch spaces from Flask REST API
+    fetch('/api/spaces')
+        .then(response => response.json())
+        .then(data => {
+            allSpaces = data || [];
+            spacesLoading.style.display = 'none';
+            spacesGrid.style.display = 'flex';
+            filterAndRender();
+        })
+        .catch(err => {
+            console.error("Error loading public spaces:", err);
+            spacesLoading.innerHTML = '<div class="alert alert-danger mx-auto" style="max-width: 500px;"><i class="fa-solid fa-triangle-exclamation me-2"></i> Failed to connect to MySQL database. Please refresh or check server.</div>';
+        });
+
+    function filterAndRender() {
+        const query = searchInput.value.trim().toLowerCase();
+        if (query) {
+            clearSearchBtn.style.display = 'block';
+        } else {
+            clearSearchBtn.style.display = 'none';
+        }
+
+        let filtered = allSpaces.filter(space => {
+            const matchesCategory = (activeCategory === 'All') || (space.type.toLowerCase() === activeCategory.toLowerCase());
+            const matchesQuery = !query || 
+                (space.name && space.name.toLowerCase().includes(query)) ||
+                (space.address && space.address.toLowerCase().includes(query)) ||
+                (space.facilities && space.facilities.toLowerCase().includes(query)) ||
+                (space.description && space.description.toLowerCase().includes(query));
+            return matchesCategory && matchesQuery;
+        });
+
+        // Sorting
+        const sortVal = sortSelect.value;
+        if (sortVal === 'visitors-desc') {
+            filtered.sort((a, b) => (b.average_visitors || 0) - (a.average_visitors || 0));
+        } else if (sortVal === 'rating-desc') {
+            filtered.sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5));
+        } else if (sortVal === 'name-asc') {
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        displayedCount.textContent = filtered.length;
+
+        if (filtered.length === 0) {
+            spacesGrid.innerHTML = '';
+            spacesEmptyState.style.display = 'block';
+            return;
+        }
+
+        spacesEmptyState.style.display = 'none';
+        spacesGrid.innerHTML = filtered.map(space => {
+            const theme = categoryTheme[space.type] || { badge: 'bg-secondary-subtle text-secondary', icon: 'fa-location-dot', color: '#10d98b' };
+            const ratingVal = space.rating ? parseFloat(space.rating).toFixed(1) : '4.5';
+            
+            // Build star HTML
+            const fullStars = Math.floor(ratingVal);
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<i class="fa-solid fa-star text-warning"></i>';
+            }
+            if (ratingVal - fullStars >= 0.5) {
+                starsHtml += '<i class="fa-solid fa-star-half-stroke text-warning"></i>';
+            }
+            const remaining = 5 - Math.ceil(ratingVal);
+            for (let i = 0; i < remaining; i++) {
+                starsHtml += '<i class="fa-regular fa-star text-muted"></i>';
+            }
+
+            // Facilities tags (up to 3)
+            let facilityTags = '';
+            if (space.facilities) {
+                const facList = space.facilities.split(',').map(f => f.trim()).slice(0, 3);
+                facilityTags = facList.map(f => `<span class="badge bg-light text-dark border me-1 mb-1 fw-normal" style="font-size: 0.75rem;"><i class="fa-solid fa-check text-success me-1"></i>${f}</span>`).join('');
+            }
+
+            const defaultImg = '/static/images/' + (space.type === 'Parks' ? 'park.jpg' : space.type === 'Playgrounds' ? 'playground.jpg' : space.type === 'Promenades' ? 'promenade.jpg' : space.type === 'Gardens' ? 'garden.jpg' : 'open-gym.jpg');
+            const imgSrc = space.image || defaultImg;
+
+            return `
+                <div class="col-xl-4 col-md-6">
+                    <div class="card space-card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+                        <!-- Image Container -->
+                        <div class="space-card-img-wrapper position-relative" style="height: 220px; overflow: hidden; background-color: #0b2638;">
+                            <img src="${imgSrc}" class="w-100 h-100 object-fit-cover space-img" alt="${space.name}" onerror="this.src='${defaultImg}'">
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="badge ${theme.badge} rounded-pill px-3 py-2 fw-semibold shadow-sm">
+                                    <i class="fa-solid ${theme.icon} me-1"></i> ${space.type}
+                                </span>
+                            </div>
+                            <div class="position-absolute bottom-0 end-0 m-3">
+                                <span class="badge bg-dark bg-opacity-75 text-white rounded-pill px-3 py-1 small">
+                                    <i class="fa-regular fa-clock me-1 text-emerald"></i> ${space.opening_time || '05:00 AM'} - ${space.closing_time || '10:00 PM'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title fw-bold text-dark mb-0 text-truncate" title="${space.name}">
+                                    ${space.name}
+                                </h5>
+                            </div>
+
+                            <p class="text-muted small mb-3">
+                                <span class="badge bg-light text-dark border me-1">${space.area || 'Panvel'}</span>
+                                <i class="fa-solid fa-location-dot text-danger me-1"></i>
+                                ${space.address || 'Civic Center'}
+                            </p>
+
+                            <!-- Facility Pills -->
+                            <div class="mb-3 d-flex flex-wrap">
+                                ${facilityTags}
+                            </div>
+
+                            <!-- Rating & Visitors -->
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-1">
+                                    <div class="stars-wrapper" style="font-size: 0.85rem;">
+                                        ${starsHtml}
+                                    </div>
+                                    <span class="ms-1 fw-bold text-dark small">${ratingVal}</span>
+                                </div>
+                                <div class="small text-muted">
+                                    <i class="fa-solid fa-users text-primary me-1"></i>
+                                    <strong>${space.average_visitors || 500}</strong>/day
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row g-2 mt-3">
+                                <div class="col-6">
+                                    <a href="/public-space/${space.id}" class="btn btn-emerald w-100 rounded-pill py-2 text-center fw-semibold small">
+                                        View Details
+                                    </a>
+                                </div>
+                                <div class="col-3">
+                                    <a href="/map?id=${space.id}" class="btn btn-outline-info w-100 rounded-pill py-2 text-center small" title="Locate on Map">
+                                        <i class="fa-solid fa-map-pin"></i> Map
+                                    </a>
+                                </div>
+                                <div class="col-3">
+                                    <a href="/survey?space_id=${space.id}" class="btn btn-outline-secondary w-100 rounded-pill py-2 text-center small" title="Take survey for this space">
+                                        <i class="fa-solid fa-clipboard-list"></i> Survey
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Filter button clicks
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", function() {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            activeCategory = this.dataset.category;
+            filterAndRender();
+        });
+    });
+
+    // Search input
+    let debounceTimer;
+    searchInput.addEventListener("input", function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(filterAndRender, 200);
+    });
+
+    // Clear search
+    clearSearchBtn.addEventListener("click", function() {
+        searchInput.value = '';
+        filterAndRender();
+        searchInput.focus();
+    });
+
+    // Sort select
+    sortSelect.addEventListener("change", filterAndRender);
+
+    // Reset filters
+    const resetBtn = document.getElementById("resetFiltersBtn");
+    if (resetBtn) {
+        resetBtn.addEventListener("click", function() {
+            activeCategory = 'All';
+            filterButtons.forEach(b => {
+                if (b.dataset.category === 'All') b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            searchInput.value = '';
+            filterAndRender();
+        });
+    }
+});
+</script>
+{% endblock %}

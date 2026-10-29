@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Register | Join PublicSpace360{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper">
+  <div class="auth-card auth-card-wide">
+    <div class="auth-header">
+      <div class="brand-icon mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+        <i class="fa-solid fa-leaf"></i>
+      </div>
+      <h2>Join PublicSpace360</h2>
+      <p>Empower your city by documenting and rating public recreational spaces</p>
+    </div>
+
+    <div id="registerAlert" class="alert alert-danger d-none rounded-3 py-2 small" role="alert"></div>
+
+    <form id="userRegisterForm">
+      <div class="row g-3">
+        <!-- Full Name -->
+        <div class="col-md-6">
+          <label class="form-label-dark">Full Name <span class="text-danger">*</span></label>
+          <input type="text" name="name" class="form-control form-control-dark" placeholder="Priyanka Sharma" required>
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6">
+          <label class="form-label-dark">Email Address <span class="text-danger">*</span></label>
+          <input type="email" name="email" class="form-control form-control-dark" placeholder="priyanka@example.com" required>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="col-md-6">
+          <label class="form-label-dark">Mobile Number <span class="text-danger">*</span></label>
+          <input type="tel" name="mobile" class="form-control form-control-dark" placeholder="+91 98765 43210" required>
+        </div>
+
+        <!-- Age Group -->
+        <div class="col-md-6">
+          <label class="form-label-dark">Age Group <span class="text-danger">*</span></label>
+          <select name="age_group" class="form-select form-control-dark" required>
+            <option value="" disabled selected>-- Select Age Group --</option>
+            <option value="Below 18">Below 18</option>
+            <option value="18–25">18–25 (Young Adult)</option>
+            <option value="26–40">26–40 (Adult)</option>
+            <option value="41–60">41–60 (Middle Age)</option>
+            <option value="60+">60+ (Senior Citizen)</option>
+          </select>
+        </div>
+
+        <!-- Gender -->
+        <div class="col-12">
+          <label class="form-label-dark">Gender Identity <span class="text-danger">*</span></label>
+          <div class="d-flex flex-wrap gap-2">
+            {% for g in ['Female', 'Male', 'Non-Binary', 'Prefer not to say'] %}
+              <div class="form-check form-check-inline">
+                <input class="form-check-input bg-dark border-secondary" type="radio" name="gender" id="gender_{{ loop.index }}" value="{{ g }}" {% if loop.first %}checked{% endif %} required>
+                <label class="form-check-label text-white-50 small" for="gender_{{ loop.index }}">{{ g }}</label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="col-md-6">
+          <label class="form-label-dark">Password <span class="text-danger">*</span></label>
+          <input type="password" name="password" class="form-control form-control-dark" placeholder="Minimum 6 characters" required>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="col-md-6">
+          <label class="form-label-dark">Confirm Password <span class="text-danger">*</span></label>
+          <input type="password" name="confirm_password" class="form-control form-control-dark" placeholder="Repeat password" required>
+        </div>
+      </div>
+
+      <!-- Terms Checkbox -->
+      <div class="form-check my-4">
+        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="termsCheck" required checked>
+        <label class="form-check-label text-white-50 small" for="termsCheck">
+          I agree to the <a href="#" class="text-info text-decoration-none" onclick="alert('By registering, your survey contributions support civic research under the Community Engagement Project (CEP).'); return false;">terms and conditions</a>.
+        </label>
+      </div>
+
+      <button type="submit" id="registerSubmitBtn" class="btn btn-hero-primary w-100 py-3 rounded-pill fw-bold">
+        <i class="fa-solid fa-user-plus me-2"></i> Create Account
+      </button>
+
+      <div class="text-center mt-4 text-white-50 small">
+        Already have an account? 
+        <a href="{{ url_for('login_page') }}" class="text-info fw-bold text-decoration-none">Login</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('userRegisterForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const alertBox = document.getElementById('registerAlert');
+    const submitBtn = document.getElementById('registerSubmitBtn');
+    alertBox.classList.add('d-none');
+
+    const password = this.password.value;
+    const confirm_password = this.confirm_password.value;
+
+    if (password !== confirm_password) {
+      alertBox.textContent = 'Passwords do not match.';
+      alertBox.classList.remove('d-none');
+      return;
+    }
+
+    if (password.length < 6) {
+      alertBox.textContent = 'Password must be at least 6 characters.';
+      alertBox.classList.remove('d-none');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Creating Account...';
+
+    const payload = {
+      name: this.name.value.trim(),
+      email: this.email.value.trim(),
+      mobile: this.mobile.value.trim(),
+      password: password,
+      confirm_password: confirm_password,
+      age_group: this.age_group.value,
+      gender: this.gender.value
+    };
+
+    fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          showToast(res.message, 'success');
+          setTimeout(() => {
+            window.location.href = res.redirect || '/dashboard';
+          }, 1200);
+        } else {
+          alertBox.textContent = res.error || 'Registration failed.';
+          alertBox.classList.remove('d-none');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i> Create Account';
+        }
+      })
+      .catch(err => {
+        alertBox.textContent = 'A network error occurred. Please try again.';
+        alertBox.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i> Create Account';
+      });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard | PublicSpace360{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, #0b192c, #152942);">
+  <div class="container py-3">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <span class="badge bg-success bg-opacity-25 text-success border border-success-subtle px-3 py-1 rounded-pill mb-2">
+          <i class="fa-solid fa-user-check me-1"></i> Citizen Contributor Portal
+        </span>
+        <h1 class="fw-bold mb-1">Welcome, {{ user.name if user else user_name }}</h1>
+        <p class="text-white-50 mb-0">
+          <i class="fa-solid fa-envelope me-1"></i> {{ user.email if user else '' }} • Age Cohort: <b>{{ user.age_group if user else '18–25' }}</b> • Gender: <b>{{ user.gender if user else 'Citizen' }}</b>
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger rounded-pill px-4 py-2">
+          <i class="fa-solid fa-right-from-bracket me-1"></i> Sign Out
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <!-- Key Metrics Row -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-emerald">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Surveys Completed</div>
+          <div class="fs-2 fw-bold text-dark">{{ surveys|length }}</div>
+          <div class="small text-success">Civic Insights Shared</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-orange">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Reports Submitted</div>
+          <div class="fs-2 fw-bold text-dark">{{ reports|length }}</div>
+          <div class="small text-warning">Active & Resolved Tickets</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white d-flex flex-row align-items-center gap-3">
+        <div class="stat-icon-wrapper icon-purple">
+          <i class="fa-solid fa-heart"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase">Impact Level</div>
+          <div class="fs-2 fw-bold text-dark">Gold Tier</div>
+          <div class="small text-purple" style="color: #8b5cf6;">Community Champion</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Panel -->
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-5">
+    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i>Quick Actions</h5>
+    <div class="row g-3">
+      <div class="col-lg-3 col-sm-6">
+        <a href="{{ url_for('map_page') }}" class="btn btn-outline-primary w-100 py-3 rounded-3 text-start fw-bold d-flex align-items-center gap-3">
+          <i class="fa-solid fa-map-location-dot fs-4 text-info"></i>
+          <div>
+            <div>Explore Map</div>
+            <span class="small text-muted fw-normal">View GIS markers</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-lg-3 col-sm-6">
+        <a href="{{ url_for('survey_page') }}" class="btn btn-outline-success w-100 py-3 rounded-3 text-start fw-bold d-flex align-items-center gap-3">
+          <i class="fa-solid fa-clipboard-question fs-4 text-success"></i>
+          <div>
+            <div>Take Survey</div>
+            <span class="small text-muted fw-normal">Evaluate a space</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-lg-3 col-sm-6">
+        <a href="{{ url_for('report_page') }}" class="btn btn-outline-warning w-100 py-3 rounded-3 text-start fw-bold d-flex align-items-center gap-3">
+          <i class="fa-solid fa-triangle-exclamation fs-4 text-warning"></i>
+          <div>
+            <div>Report Issue</div>
+            <span class="small text-muted fw-normal">File maintenance ticket</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-lg-3 col-sm-6">
+        <a href="{{ url_for('results_page') }}" class="btn btn-outline-info w-100 py-3 rounded-3 text-start fw-bold d-flex align-items-center gap-3">
+          <i class="fa-solid fa-chart-pie fs-4 text-primary"></i>
+          <div>
+            <div>View Results</div>
+            <span class="small text-muted fw-normal">Chart.js analytics</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity Section: Surveys & Reports -->
+  <div class="row g-4">
+    <!-- User's Surveys -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-clipboard-list text-primary me-2"></i>My Survey Contributions</h5>
+          <span class="badge bg-light text-muted">{{ surveys|length }} records</span>
+        </div>
+
+        {% if surveys %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+              <thead class="table-light">
+                <tr>
+                  <th>Space</th>
+                  <th>Visit Frequency</th>
+                  <th>Purpose</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sv in surveys %}
+                  <tr>
+                    <td>
+                      <b>{{ sv.space_name }}</b><br>
+                      <span class="text-muted" style="font-size: 0.7rem;">{{ sv.space_type }}</span>
+                    </td>
+                    <td>{{ sv.visit_frequency }}</td>
+                    <td><span class="badge bg-primary-subtle text-primary">{{ sv.purpose }}</span></td>
+                    <td class="text-muted" style="font-size: 0.75rem;">{{ sv.created_at }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-clipboard-question fa-2x mb-2 text-secondary"></i>
+            <p class="small mb-3">You haven't submitted any CEP surveys yet.</p>
+            <a href="{{ url_for('survey_page') }}" class="btn btn-sm btn-primary rounded-pill px-3">Take Survey Now</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- User's Reports -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0"><i class="fa-solid fa-wrench text-warning me-2"></i>My Issue Reports</h5>
+          <span class="badge bg-light text-muted">{{ reports|length }} records</span>
+        </div>
+
+        {% if reports %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+              <thead class="table-light">
+                <tr>
+                  <th>Issue</th>
+                  <th>Space</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rp in reports %}
+                  <tr>
+                    <td>
+                      <b>{{ rp.issue_type }}</b><br>
+                      <span class="text-muted text-truncate d-inline-block" style="max-width: 140px;">{{ rp.description }}</span>
+                    </td>
+                    <td>{{ rp.space_name }}</td>
+                    <td>
+                      <span class="badge {% if rp.status == 'Resolved' %}bg-success{% elif rp.status == 'In Progress' %}bg-primary{% elif rp.status == 'Under Review' %}bg-info{% else %}bg-warning text-dark{% endif %}">
+                        {{ rp.status }}
+                      </span>
+                    </td>
+                    <td class="text-muted" style="font-size: 0.75rem;">{{ rp.created_at }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-triangle-exclamation fa-2x mb-2 text-secondary"></i>
+            <p class="small mb-3">You haven't filed any problem reports.</p>
+            <a href="{{ url_for('report_page') }}" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold">Report an Issue</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

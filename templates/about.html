@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}About Project | PublicSpace360 CEP Community Engagement{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, #0b192c, #152942);">
+  <div class="container py-3">
+    <span class="badge bg-success bg-opacity-25 text-success border border-success-subtle px-3 py-1 rounded-pill mb-2">
+      <i class="fa-solid fa-graduation-cap me-1"></i> Final Year CEP Project
+    </span>
+    <h1 class="fw-bold mb-2">About PublicSpace360</h1>
+    <p class="text-white-50 lead mb-0">
+      “Public Space Usage and Digital Mapping” — A Community Engagement Project for Urban Infrastructure Optimization
+    </p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      <!-- Project Mission -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+        <span class="section-pill">Project Vision</span>
+        <h3 class="fw-bold text-dark mb-3">Transforming Civic Spaces Through Citizen Data</h3>
+        <p class="text-secondary lead fs-6" style="line-height: 1.8;">
+          Public urban spaces—parks, waterfronts, community gardens, and open-air athletic gyms—form the social and ecological backbone of modern smart cities. However, many municipalities lack high-granularity, crowd-sourced digital maps indicating how different age groups utilize these facilities and where maintenance deficits arise.
+        </p>
+        <p class="text-secondary" style="line-height: 1.8;">
+          <strong>PublicSpace360</strong> bridges this crucial gap between citizens and urban planners. By combining interactive GIS mapping (Leaflet.js + OpenStreetMap) with rigorous citizen survey telemetry and real-time maintenance ticketing, the platform delivers actionable empirical insights that inform municipal resource allocation.
+        </p>
+      </div>
+
+      <!-- Alignment with UN Sustainable Development Goals -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+        <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-globe text-primary me-2"></i>UN Sustainable Development Goals (SDG) Alignment</h4>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 bg-light border-start border-4 border-success">
+              <h6 class="fw-bold text-success mb-1">SDG 11: Sustainable Cities & Communities</h6>
+              <p class="small text-muted m-0">Target 11.7: By 2030, provide universal access to safe, inclusive and accessible, green and public spaces, particularly for women and children, older persons and persons with disabilities.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 bg-light border-start border-4 border-info">
+              <h6 class="fw-bold text-info mb-1">SDG 3: Good Health & Well-being</h6>
+              <p class="small text-muted m-0">Target 3.4: Promote physical exercise and mental well-being by expanding access to open fitness gyms, walking tracks, and botanical relaxation gardens.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Methodology -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-flask-vial text-warning me-2"></i>Project Methodology & Architecture</h4>
+        <div class="d-flex flex-column gap-3">
+          <div class="d-flex gap-3">
+            <div class="stat-icon-wrapper icon-emerald" style="width: 44px; height: 44px; font-size: 1.1rem;">
+              <i class="fa-solid fa-1"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Field Audit & GIS Georeferencing</h6>
+              <p class="small text-muted m-0">Auditing metropolitan parks, promenades, and gardens, recording coordinates, operational hours, conditions, and amenities.</p>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <div class="stat-icon-wrapper icon-cyan" style="width: 44px; height: 44px; font-size: 1.1rem;">
+              <i class="fa-solid fa-2"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Citizen Community Surveying</h6>
+              <p class="small text-muted m-0">Deploying a structured 12-question metric assessing perceived safety, illumination, water potability, and universal accessibility.</p>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <div class="stat-icon-wrapper icon-purple" style="width: 44px; height: 44px; font-size: 1.1rem;">
+              <i class="fa-solid fa-3"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Empirical Visualization & Telemetry</h6>
+              <p class="small text-muted m-0">Aggregating responses using Flask REST APIs and Chart.js dynamic telemetry charts for smart city administrators.</p>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <div class="stat-icon-wrapper icon-orange" style="width: 44px; height: 44px; font-size: 1.1rem;">
+              <i class="fa-solid fa-4"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Civic Issue Resolution Workflow</h6>
+              <p class="small text-muted m-0">Allowing citizens to report broken infrastructure with photo verification, trackable from "Reported" to "Resolved".</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Academic Metadata & Team Credits -->
+    <div class="col-lg-4">
+      <!-- Project Metadata Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-book-bookmark text-primary me-2"></i>Academic Profile</h5>
+        <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+          <li class="d-flex justify-content-between border-bottom pb-2">
+            <span class="text-muted">Course:</span>
+            <span class="fw-bold">Community Engagement (CEP)</span>
+          </li>
+          <li class="d-flex justify-content-between border-bottom pb-2">
+            <span class="text-muted">Academic Year:</span>
+            <span class="fw-bold">2025–2026</span>
+          </li>
+          <li class="d-flex justify-content-between border-bottom pb-2">
+            <span class="text-muted">Department:</span>
+            <span class="fw-bold">Computer Science & Engg</span>
+          </li>
+          <li class="d-flex justify-content-between border-bottom pb-2">
+            <span class="text-muted">Framework:</span>
+            <span class="fw-bold">Flask, MySQL, Leaflet, Chart.js</span>
+          </li>
+          <li class="d-flex justify-content-between">
+            <span class="text-muted">Status:</span>
+            <span class="badge bg-success">Viva / Evaluation Ready</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Technology Stack Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-code text-success me-2"></i>Technology Stack</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge bg-light text-dark border p-2">Python 3</span>
+          <span class="badge bg-light text-dark border p-2">Flask 3</span>
+          <span class="badge bg-light text-dark border p-2">MySQL 8.0</span>
+          <span class="badge bg-light text-dark border p-2">Leaflet.js</span>
+          <span class="badge bg-light text-dark border p-2">Chart.js</span>
+          <span class="badge bg-light text-dark border p-2">Bootstrap 5.3</span>
+          <span class="badge bg-light text-dark border p-2">OpenStreetMap</span>
+          <span class="badge bg-light text-dark border p-2">Werkzeug Security</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white text-center">
+        <h5 class="fw-bold mb-2">Join the Community Study</h5>
+        <p class="text-white-50 small mb-3">Help evaluate your local neighborhood park or promenade.</p>
+        <a href="{{ url_for('survey_page') }}" class="btn btn-hero-primary rounded-pill w-100">Take Survey Now</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
